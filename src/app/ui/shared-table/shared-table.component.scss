@@ -4,25 +4,41 @@
   align-items: center;
   margin-bottom: 1rem;
   flex-wrap: wrap;
-  gap: 1rem;
 
   .actions {
     display: flex;
     gap: 1rem;
-    align-items: center;
+    align-items: baseline;
+    margin-top: 2rem;
   }
 }
 
-.material-icon-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px;
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: rgba(255, 255, 255, 0.7);
+  z-index: 1000;
+}
 
-  span.material-icons {
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--warn-color);
+  padding: 16px;
+  margin-bottom: 16px;
+  background: var(--warn-lighter);
+  border-radius: 4px;
+
+  mat-icon {
     font-size: 20px;
+    height: 20px;
+    width: 20px;
   }
 }

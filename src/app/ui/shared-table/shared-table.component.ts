@@ -1,91 +1,84 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgIf, TitleCasePipe } from '@angular/common';
+import { Component, effect, inject, input, signal } from '@angular/core';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AgGridModule } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatButtonModule } from '@angular/material/button';
-import { MatInputModule } from '@angular/material/input';
-import { FormsModule } from '@angular/forms';
-import { MatIconModule } from '@angular/material/icon';
+import { FilterFormType, Product } from '../../models/common.model';
+import { MockService } from '../../services/mocks/mocks.service';
+import { ActionButtonsComponent } from '../action-buttons/action-buttons.component';
 
-interface Product {
-  id: number;
-  code: string;
-  name: string;
-  category: string;
-  quantity: number;
-  status: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
-}
+type TabType = 'active' | 'inactive' | 'archived';
 
 @Component({
   selector: 'app-shared-table',
   standalone: true,
   imports: [
-    CommonModule,
+    TitleCasePipe,
     AgGridModule,
     MatTabsModule,
     MatButtonModule,
     MatInputModule,
     MatIconModule,
-    FormsModule,
+    MatProgressSpinnerModule,
+    ReactiveFormsModule,
+    CommonModule,
   ],
   templateUrl: './shared-table.component.html',
   styleUrls: ['./shared-table.component.scss'],
 })
-export class SharedTableComponent implements OnInit {
-  @Input({ required: false }) showTabs = true;
-  @Input({ required: false }) showActions = true;
-  @Input({ required: false }) showSearch = true;
-  @Input({ required: false }) enablePagination = false;
+export class SharedTableComponent {
+  // Feature flags
+  showTabs = input(true);
+  showActions = input(true);
+  showSearch = input(true);
+  enablePagination = input(false);
 
-  grids: Record<string, GridApi> = {};
+  // UI Labels
+  title = input('Products');
+  searchPlaceholder = input('Search products...');
+  addButtonLabel = input('Add');
+  searchLabel = input('Search');
+  activeTabLabel = input('Active Products');
+  inactiveTabLabel = input('Inactive Products');
+  archivedTabLabel = input('Archived Products');
 
-  activeProducts: Product[] = [];
-  inactiveProducts: Product[] = [];
-  archivedProducts: Product[] = [];
+  // Services
+  private mockService = inject(MockService);
+  private fb = inject(FormBuilder);
 
-  activeFilter = '';
-  inactiveFilter = '';
-  archivedFilter = '';
+  // State management
+  grids: Record<TabType, GridApi> = {} as Record<TabType, GridApi>;
+  activeItems = signal<Product[]>([]);
+  inactiveItems = signal<Product[]>([]);
+  archivedItems = signal<Product[]>([]);
+  filters = signal<Record<TabType, string>>({
+    active: '',
+    inactive: '',
+    archived: '',
+  });
+  columnDefs = signal<ColDef[]>([]);
+  loading = signal(false);
+  error = signal<string | null>(null);
 
-    // Declare filters object to hold filter values
-    filters: Record<string, string> = {
-      active: '',
-      inactive: '',
-      archived: ''
-    };
+  // Forms
+  filterForms = {
+    active: this.fb.group({ search: [''] }),
+    inactive: this.fb.group({ search: [''] }),
+    archived: this.fb.group({ search: [''] }),
+  };
 
-  baseColumnDefs: ColDef[] = [
-    { field: 'id', headerName: 'ID', width: 80 },
-    { field: 'code', headerName: 'Code' },
-    { field: 'name', headerName: 'Name' },
-    { field: 'category', headerName: 'Category' },
-    { field: 'quantity', headerName: 'Quantity', width: 100 },
-    {
-      field: 'status',
-      headerName: 'Status',
-      cellRenderer: (params: any) => {
-        const status = params.value;
-        let color = '';
-        switch (status) {
-          case 'ACTIVE':
-            color = 'green';
-            break;
-          case 'INACTIVE':
-            color = 'orange';
-            break;
-          case 'ARCHIVED':
-            color = 'gray';
-            break;
-        }
-        return `<span style="color: ${color}; font-weight: bold;">${status}</span>`;
-      },
-    },
-  ];
-
-  columnDefs: ColDef[] = [];
-
-  defaultColDef: ColDef = {
+  // Grid configuration
+  readonly defaultColDef: ColDef = {
     flex: 1,
     minWidth: 100,
     resizable: true,
@@ -93,44 +86,96 @@ export class SharedTableComponent implements OnInit {
     filter: true,
   };
 
-  ngOnInit() {
-    this.loadProducts();
-    this.setUpColumns();
+  readonly baseColumnDefs: ColDef[] = [
+    { field: 'id', headerName: 'ID', width: 80 },
+    { field: 'code', headerName: 'Code' },
+    { field: 'name', headerName: 'Name' },
+    { field: 'category', headerName: 'Category' },
+    { field: 'quantity', headerName: 'Quantity', width: 100 },
+    this.createStatusColumn(),
+  ];
+
+  constructor() {
+    effect(() => {
+      this.loadItems();
+      this.setUpColumns();
+      this.setupFilterSubscriptions();
+    });
   }
 
   setUpColumns() {
-    this.columnDefs = [...this.baseColumnDefs];
+    const newColumns = [...this.baseColumnDefs];
 
-    if (this.showActions) {
-      this.columnDefs.push({
+    if (this.showActions()) {
+      newColumns.push({
         headerName: 'Actions',
         width: 120,
-        cellRenderer: () => `
-          <button class="action-btn edit"><mat-icon>edit</mat-icon></button>
-          <button class="action-btn delete"><mat-icon>delete</mat-icon></button>
-        `,
-        onCellClicked: (params: any) => {
-          const target = params.event.target;
-          if (target.closest('.edit')) this.editProduct(params.data);
-          if (target.closest('.delete')) this.deleteProduct(params.data);
+        cellRenderer: ActionButtonsComponent,
+        cellRendererParams: {
+          context: {
+            componentParent: this,
+          },
         },
       });
     }
+
+    this.columnDefs.set(newColumns);
   }
 
-  loadProducts() {
-    const allProducts: Product[] = [
-      { id: 1, code: 'A001', name: 'Product A', category: 'Accessories', quantity: 10, status: 'ACTIVE' },
-      { id: 2, code: 'B002', name: 'Product B', category: 'Electronics', quantity: 5, status: 'INACTIVE' },
-      { id: 3, code: 'C003', name: 'Product C', category: 'Fitness', quantity: 0, status: 'ARCHIVED' },
-      { id: 4, code: 'D004', name: 'Product D', category: 'Clothing', quantity: 8, status: 'ACTIVE' },
-    ];
-
-    this.activeProducts = allProducts.filter(p => p.status === 'ACTIVE');
-    this.inactiveProducts = allProducts.filter(p => p.status === 'INACTIVE');
-    this.archivedProducts = allProducts.filter(p => p.status === 'ARCHIVED');
+  loadItems() {
+    this.activeItems.set(this.mockService.getActiveProducts());
+    this.inactiveItems.set(this.mockService.getInactiveProducts());
+    this.archivedItems.set(this.mockService.getArchivedProducts());
   }
 
+  private setupFilterSubscriptions() {
+    (
+      Object.entries(this.filterForms) as [
+        FilterFormType,
+        FormGroup<{ search: FormControl<string> }>
+      ][]
+    ).forEach(([type, form]) => {
+      const searchControl = form.get('search');
+      if (searchControl) {
+        searchControl.valueChanges.subscribe((value: string) => {
+          this.filters.update((current) => ({
+            ...current,
+            [type]: value || '',
+          }));
+          this.onFilterTextBoxChanged(type);
+        });
+      }
+    });
+  }
+
+  private createStatusColumn(): ColDef {
+    return {
+      field: 'status',
+      headerName: 'Status',
+      cellRenderer: (params: any) => {
+        const colors: Record<string, string> = {
+          ACTIVE: 'green',
+          INACTIVE: 'orange',
+          ARCHIVED: 'gray',
+        };
+        const color = colors[params.value] || '';
+        return `<span style="color: ${color}; font-weight: bold;">${params.value}</span>`;
+      },
+    };
+  }
+
+  updateFilter(type: 'active' | 'inactive' | 'archived', event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const value = target?.value ?? '';
+
+    this.filters.update((current) => ({
+      ...current,
+      [type]: value,
+    }));
+    this.onFilterTextBoxChanged(type);
+  }
+
+  // Event handlers
   onGridReady(event: GridReadyEvent, type: 'active' | 'inactive' | 'archived') {
     this.grids[type] = event.api;
     this.onFilterTextBoxChanged(type);
@@ -140,30 +185,26 @@ export class SharedTableComponent implements OnInit {
     const grid = this.grids[type];
     if (!grid) return;
 
-    const filters = {
-      active: this.activeFilter,
-      inactive: this.inactiveFilter,
-      archived: this.archivedFilter,
-    };
-
-    grid.setGridOption('quickFilterText', filters[type]);
-  }
-
-  addProduct() {
-    console.log('Add new product');
-  }
-
-  editProduct(product: Product) {
-    console.log('Edit product:', product);
-  }
-
-  deleteProduct(product: Product) {
-    console.log('Delete product:', product);
+    const currentFilters = this.filters();
+    grid.setGridOption('quickFilterText', currentFilters[type]);
   }
 
   onTabChange(event: { index: number; tab: any }) {
     const labels = ['active', 'inactive', 'archived'];
     const type = labels[event.index] as 'active' | 'inactive' | 'archived';
     this.onFilterTextBoxChanged(type);
+  }
+
+  // CRUD operations
+  addItem() {
+    console.log('Add new item');
+  }
+
+  editItem(item: Product) {
+    console.log('Edit item:', item);
+  }
+
+  deleteItem(item: Product) {
+    console.log('Delete item:', item);
   }
 }

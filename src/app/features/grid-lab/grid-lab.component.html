@@ -1,4 +1,4 @@
-<h1>Grid Lab</h1>
+<h2>Grid Lab</h2>
 
 <section class="grid-lab">
   <div class="grid-example">
@@ -8,7 +8,15 @@
       [enablePagination]="false"
       [showActions]="false"
       [showTabs]="false"
-    />
+      [title]="'Items'"
+      [searchPlaceholder]="'Search items...'"
+      [addButtonLabel]="'New Item'"
+      [searchLabel]="'Find'"
+      [activeTabLabel]="'Active Items'"
+      [inactiveTabLabel]="'Inactive Items'"
+      [archivedTabLabel]="'Archived Items'"
+    >
+    </app-shared-table>
   </div>
 
   <div class="grid-example">

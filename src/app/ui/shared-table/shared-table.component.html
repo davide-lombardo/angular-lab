@@ -1,55 +1,105 @@
-<ng-container *ngIf="showTabs; else singleGrid">
+<ng-container *ngIf="showTabs(); else singleGrid">
   <mat-tab-group (selectedTabChange)="onTabChange($event)">
-    <mat-tab label="Active Products">
+    <mat-tab [label]="activeTabLabel()">
       <ng-template matTabContent>
-        <ng-container *ngTemplateOutlet="gridTemplate; context: { type: 'active', data: activeProducts, filter: activeFilter }"></ng-container>
+        <ng-container
+          *ngTemplateOutlet="
+            gridTemplate;
+            context: {
+              type: 'active',
+              data: activeItems(),
+              form: filterForms.active
+            }
+          "
+        ></ng-container>
       </ng-template>
     </mat-tab>
 
-    <mat-tab label="Inactive Products">
+    <mat-tab [label]="inactiveTabLabel()">
       <ng-template matTabContent>
-        <ng-container *ngTemplateOutlet="gridTemplate; context: { type: 'inactive', data: inactiveProducts, filter: inactiveFilter }"></ng-container>
+        <ng-container
+          *ngTemplateOutlet="
+            gridTemplate;
+            context: {
+              type: 'inactive',
+              data: inactiveItems(),
+              form: filterForms.inactive
+            }
+          "
+        ></ng-container>
       </ng-template>
     </mat-tab>
 
-    <mat-tab label="Archived Products">
+    <mat-tab [label]="archivedTabLabel()">
       <ng-template matTabContent>
-        <ng-container *ngTemplateOutlet="gridTemplate; context: { type: 'archived', data: archivedProducts, filter: archivedFilter }"></ng-container>
+        <ng-container
+          *ngTemplateOutlet="
+            gridTemplate;
+            context: {
+              type: 'archived',
+              data: archivedItems(),
+              form: filterForms.archived
+            }
+          "
+        ></ng-container>
       </ng-template>
     </mat-tab>
   </mat-tab-group>
 </ng-container>
 
 <ng-template #singleGrid>
-  <ng-container *ngTemplateOutlet="gridTemplate; context: { type: 'active', data: activeProducts, filter: activeFilter }"></ng-container>
+  <ng-container
+    *ngTemplateOutlet="
+      gridTemplate;
+      context: {
+        type: 'active',
+        data: activeItems(),
+        form: filterForms.active
+      }
+    "
+  ></ng-container>
 </ng-template>
 
-<ng-template #gridTemplate let-type="type" let-data="data" let-filter="filter">
+<ng-template #gridTemplate let-type="type" let-data="data" let-form="form">
   <div class="toolbar">
-    <h4>{{ type | titlecase }} Products</h4>
+    <h4>{{ type | titlecase }} {{ title() }}</h4>
     <div class="actions">
-      <mat-form-field appearance="outline" *ngIf="showSearch">
-        <mat-label>Search</mat-label>
-        <input matInput [(ngModel)]="filters[type]" (input)="onFilterTextBoxChanged(type)" />
+      <mat-form-field appearance="outline" *ngIf="showSearch()">
+        <mat-label>{{ searchLabel() }}</mat-label>
+        <input 
+          matInput 
+          [formControl]="form.get('search')"
+          [placeholder]="searchPlaceholder()"
+        />
         <button mat-icon-button matSuffix disabled>
           <mat-icon>search</mat-icon>
         </button>
       </mat-form-field>
-      <button mat-raised-button color="primary" (click)="addProduct()">
+      <button mat-raised-button color="primary" (click)="addItem()">
         <mat-icon>add</mat-icon>
-        Add
+        {{ addButtonLabel() }}
       </button>
     </div>
   </div>
 
+  <div *ngIf="loading()" class="loading-overlay">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+  
+  <div *ngIf="error()" class="error-message">
+    <mat-icon color="warn">error</mat-icon>
+    <span>{{ error() }}</span>
+  </div>
+
   <ag-grid-angular
-    style="width: 100%; height: 400px;"
     class="ag-theme-alpine"
+    style="width: 100%; height: 400px"
     [rowData]="data"
-    [columnDefs]="columnDefs"
+    [columnDefs]="columnDefs()"
     [defaultColDef]="defaultColDef"
-    [pagination]="enablePagination"
+    [pagination]="enablePagination()"
     [paginationPageSize]="10"
-    (gridReady)="onGridReady($event, type)">
+    (gridReady)="onGridReady($event, type)"
+  >
   </ag-grid-angular>
 </ng-template>
