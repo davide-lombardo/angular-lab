@@ -1,10 +1,29 @@
-<nav>
-  <ul>
-    <li><a routerLink="/forms-lab">Forms</a></li>
-    <li><a routerLink="/signals-lab">Signals</a></li>
-    <li><a routerLink="/grids-lab">Grids</a></li>
-    <li><a routerLink="/primeng-lab">PrimeNG</a></li>
-  </ul>
-</nav>
+<mat-toolbar color="primary">
+  <span>Angular lab</span>
+  <span class="spacer"></span>
+  <a mat-button routerLink="/forms-lab" routerLinkActive="active-link">
+    <mat-icon>description</mat-icon>
+    Forms
+  </a>
+  <a mat-button routerLink="/signals-lab" routerLinkActive="active-link">
+    <mat-icon>signal_cellular_alt</mat-icon>
+    Signals
+  </a>
+  <a mat-button routerLink="/grids-lab" routerLinkActive="active-link">
+    <mat-icon>grid_on</mat-icon>
+    Grids
+  </a>
+  <a mat-button routerLink="/primeng-lab" routerLinkActive="active-link">
+    <mat-icon>widgets</mat-icon>
+    PrimeNG
+  </a>
+</mat-toolbar>
 
-<router-outlet />
+<main class="main-content">
+  <div class="content-header">
+    <h1>Angular lab</h1>
+    <p>Select a lab from the menu above to get started.</p>
+  </div>
+  <router-outlet></router-outlet>
+</main>
+

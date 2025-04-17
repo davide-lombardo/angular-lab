@@ -1,0 +1,55 @@
+<ng-container *ngIf="showTabs; else singleGrid">
+  <mat-tab-group (selectedTabChange)="onTabChange($event)">
+    <mat-tab label="Active Products">
+      <ng-template matTabContent>
+        <ng-container *ngTemplateOutlet="gridTemplate; context: { type: 'active', data: activeProducts, filter: activeFilter }"></ng-container>
+      </ng-template>
+    </mat-tab>
+
+    <mat-tab label="Inactive Products">
+      <ng-template matTabContent>
+        <ng-container *ngTemplateOutlet="gridTemplate; context: { type: 'inactive', data: inactiveProducts, filter: inactiveFilter }"></ng-container>
+      </ng-template>
+    </mat-tab>
+
+    <mat-tab label="Archived Products">
+      <ng-template matTabContent>
+        <ng-container *ngTemplateOutlet="gridTemplate; context: { type: 'archived', data: archivedProducts, filter: archivedFilter }"></ng-container>
+      </ng-template>
+    </mat-tab>
+  </mat-tab-group>
+</ng-container>
+
+<ng-template #singleGrid>
+  <ng-container *ngTemplateOutlet="gridTemplate; context: { type: 'active', data: activeProducts, filter: activeFilter }"></ng-container>
+</ng-template>
+
+<ng-template #gridTemplate let-type="type" let-data="data" let-filter="filter">
+  <div class="toolbar">
+    <h4>{{ type | titlecase }} Products</h4>
+    <div class="actions">
+      <mat-form-field appearance="outline" *ngIf="showSearch">
+        <mat-label>Search</mat-label>
+        <input matInput [(ngModel)]="filters[type]" (input)="onFilterTextBoxChanged(type)" />
+        <button mat-icon-button matSuffix disabled>
+          <mat-icon>search</mat-icon>
+        </button>
+      </mat-form-field>
+      <button mat-raised-button color="primary" (click)="addProduct()">
+        <mat-icon>add</mat-icon>
+        Add
+      </button>
+    </div>
+  </div>
+
+  <ag-grid-angular
+    style="width: 100%; height: 400px;"
+    class="ag-theme-alpine"
+    [rowData]="data"
+    [columnDefs]="columnDefs"
+    [defaultColDef]="defaultColDef"
+    [pagination]="enablePagination"
+    [paginationPageSize]="10"
+    (gridReady)="onGridReady($event, type)">
+  </ag-grid-angular>
+</ng-template>
