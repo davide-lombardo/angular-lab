@@ -1,5 +1,31 @@
+.tutorial-section {
+  margin-bottom: 2rem;
+
+  .tutorial-description {
+    color: #666;
+    line-height: 1.5;
+    margin: 1rem 0;
+  }
+}
+
 .grid-lab {
   display: flex;
   flex-direction: column;
-  gap: 3rem;
+  gap: 2rem;
+
+  .grid-example {
+    mat-card {
+      margin-bottom: 2rem;
+    }
+
+    .example-description {
+      color: #666;
+      margin: 1rem 0;
+
+      ul {
+        margin-top: 0.5rem;
+        margin-left: 1.5rem;
+      }
+    }
+  }
 }

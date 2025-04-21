@@ -66,8 +66,8 @@
     <div class="actions">
       <mat-form-field appearance="outline" *ngIf="showSearch()">
         <mat-label>{{ searchLabel() }}</mat-label>
-        <input 
-          matInput 
+        <input
+          matInput
           [formControl]="form.get('search')"
           [placeholder]="searchPlaceholder()"
         />
@@ -79,13 +79,22 @@
         <mat-icon>add</mat-icon>
         {{ addButtonLabel() }}
       </button>
+      <button
+        mat-raised-button
+        color="accent"
+        *ngIf="enableExport()"
+        (click)="exportToExcel()"
+      >
+        <mat-icon>download</mat-icon>
+        Export
+      </button>
     </div>
   </div>
 
   <div *ngIf="loading()" class="loading-overlay">
     <mat-spinner diameter="40"></mat-spinner>
   </div>
-  
+
   <div *ngIf="error()" class="error-message">
     <mat-icon color="warn">error</mat-icon>
     <span>{{ error() }}</span>
@@ -99,6 +108,8 @@
     [defaultColDef]="defaultColDef"
     [pagination]="enablePagination()"
     [paginationPageSize]="10"
+    [paginationPageSize]="pageSize()"
+    [rowSelection]="rowSelection()"
     (gridReady)="onGridReady($event, type)"
   >
   </ag-grid-angular>

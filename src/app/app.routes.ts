@@ -14,10 +14,6 @@ export const routes: Routes = [
     loadComponent: () => import('./features/grid-lab/grid-lab.component').then(m => m.GridLabComponent),
   },
   {
-    path: 'primeng-lab',
-    loadComponent: () => import('./features/primeng-lab/primeng-lab.component').then(m => m.PrimeNgLabComponent),
-  },
-  {
     path: '',
     pathMatch: 'full',
     redirectTo: 'forms-lab',

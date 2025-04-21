@@ -42,6 +42,13 @@ export class SharedTableComponent {
   showActions = input(true);
   showSearch = input(true);
   enablePagination = input(false);
+  pageSize = input(10);
+  enableExport = input(false);
+  enableColumnResize = input(true);
+  enableSorting = input(true);
+  enableFiltering = input(true);
+  enableHeaderFilters = input(false);
+  rowSelection = input<'single' | 'multiple'>('multiple');
 
   // UI Labels
   title = input('Products');
@@ -78,13 +85,16 @@ export class SharedTableComponent {
   };
 
   // Grid configuration
-  readonly defaultColDef: ColDef = {
-    flex: 1,
-    minWidth: 100,
-    resizable: true,
-    sortable: true,
-    filter: true,
-  };
+  get defaultColDef(): ColDef {
+    return {
+      flex: 1,
+      minWidth: 100,
+      resizable: this.enableColumnResize(),
+      sortable: this.enableSorting(),
+      filter: this.enableHeaderFilters() ? 'agTextColumnFilter' : false,
+      floatingFilter: this.enableHeaderFilters(),
+    };
+  }
 
   readonly baseColumnDefs: ColDef[] = [
     { field: 'id', headerName: 'ID', width: 80 },
@@ -173,6 +183,26 @@ export class SharedTableComponent {
       [type]: value,
     }));
     this.onFilterTextBoxChanged(type);
+  }
+
+  exportToExcel() {
+    if (!this.enableExport()) return;
+    const currentGrid = this.getCurrentGrid();
+    if (currentGrid) {
+      currentGrid.exportDataAsCsv({
+        fileName: `${this.title()}_export_${new Date().toISOString()}.csv`,
+      });
+    }
+  }
+
+  private getCurrentGrid(): GridApi | null {
+    const activeTab = this.getCurrentTab();
+    return this.grids[activeTab] || null;
+  }
+
+  private getCurrentTab(): TabType {
+    // Implementation depends on how you track the current tab
+    return 'active'; // Default to active
   }
 
   // Event handlers

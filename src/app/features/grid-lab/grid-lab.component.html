@@ -1,32 +1,138 @@
-<h2>Grid Lab</h2>
+<div class="tutorial-section">
+  <h2>Grid Lab</h2>
+  <p class="tutorial-description">
+    This lab demonstrates various configurations of a reusable data grid
+    component using Angular Material. Learn how to customize tables with
+    different features like search, pagination, and actions.
+  </p>
+</div>
 
 <section class="grid-lab">
   <div class="grid-example">
-    <h3>Example 1</h3>
-    <app-shared-table
-      [showSearch]="false"
-      [enablePagination]="false"
-      [showActions]="false"
-      [showTabs]="false"
-      [title]="'Items'"
-      [searchPlaceholder]="'Search items...'"
-      [addButtonLabel]="'New Item'"
-      [searchLabel]="'Find'"
-      [activeTabLabel]="'Active Items'"
-      [inactiveTabLabel]="'Inactive Items'"
-      [archivedTabLabel]="'Archived Items'"
-    >
-    </app-shared-table>
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Basic Table</mat-card-title>
+        <mat-card-subtitle
+          >Minimal configuration without extra features</mat-card-subtitle
+        >
+      </mat-card-header>
+      <mat-card-content>
+        <div class="example-description">
+          This example shows a simple table configuration with:
+          <ul>
+            <li>Basic title</li>
+            <li>No search functionality</li>
+            <li>No pagination</li>
+            <li>No action buttons</li>
+          </ul>
+        </div>
+        <app-shared-table
+          [showSearch]="false"
+          [enablePagination]="false"
+          [showActions]="false"
+          [showTabs]="false"
+          [title]="'Items'"
+          [searchPlaceholder]="'Search items...'"
+          [addButtonLabel]="'New Item'"
+          [searchLabel]="'Find'"
+          [activeTabLabel]="'Active Items'"
+          [inactiveTabLabel]="'Inactive Items'"
+          [archivedTabLabel]="'Archived Items'"
+        >
+        </app-shared-table>
+      </mat-card-content>
+    </mat-card>
   </div>
 
   <div class="grid-example">
-    <h3>Example 2</h3>
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Advanced Table</mat-card-title>
+        <mat-card-subtitle
+          >Full-featured configuration with all options
+          enabled</mat-card-subtitle
+        >
+      </mat-card-header>
+      <mat-card-content>
+        <div class="example-description">
+          This example demonstrates all available features:
+          <ul>
+            <li>Search functionality</li>
+            <li>Pagination controls</li>
+            <li>Action buttons</li>
+            <li>Status tabs</li>
+          </ul>
+        </div>
 
-    <app-shared-table
-      [showSearch]="true"
-      [enablePagination]="true"
-      [showActions]="true"
-      [showTabs]="true"
-    />
+        <app-shared-table
+          [showSearch]="true"
+          [enablePagination]="true"
+          [showActions]="true"
+          [showTabs]="true"
+        />
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="grid-example">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Paginated Table</mat-card-title>
+        <mat-card-subtitle>Table with pagination focus</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="example-description">
+          This example shows pagination features:
+          <ul>
+            <li>Pagination controls</li>
+            <li>Customizable page size</li>
+            <li>No search or tabs</li>
+            <li>With actions</li>
+          </ul>
+        </div>
+        <app-shared-table
+          [showSearch]="false"
+          [enablePagination]="true"
+          [showActions]="true"
+          [enableExport]="true"
+          [showTabs]="false"
+          [title]="'Inventory'"
+          [pageSize]="5"
+        >
+        </app-shared-table>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="grid-example">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Tabs-Only Table</mat-card-title>
+        <mat-card-subtitle>Focus on status management</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="example-description">
+          Demonstrates tab-based status management:
+          <ul>
+            <li>Status tabs navigation</li>
+            <li>Custom tab labels</li>
+            <li>No search or pagination</li>
+          </ul>
+        </div>
+        <app-shared-table
+          [showSearch]="false"
+          [enablePagination]="false"
+          [enableColumnResize]="false"
+          [enableSorting]="false"
+          [showActions]="true"
+          [showTabs]="true"
+          [title]="'Orders'"
+          [activeTabLabel]="'Pending Orders'"
+          [inactiveTabLabel]="'Processing Orders'"
+          [archivedTabLabel]="'Completed Orders'"
+        >
+        </app-shared-table>
+      </mat-card-content>
+    </mat-card>
   </div>
 </section>

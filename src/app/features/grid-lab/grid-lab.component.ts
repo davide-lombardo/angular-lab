@@ -13,10 +13,11 @@ interface Car {
 
 
 import { SharedTableComponent } from '../../ui/shared-table/shared-table.component';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-grid-lab',
-  imports: [CommonModule, SharedTableComponent],
+  imports: [CommonModule, SharedTableComponent, MatCardModule],
   templateUrl: './grid-lab.component.html',
   styleUrls: ['./grid-lab.component.scss'],
 })

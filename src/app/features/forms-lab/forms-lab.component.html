@@ -1,6 +1,44 @@
-<h2>Forms Lab</h2>
-<form [formGroup]="form" (ngSubmit)="submit()">
-  <input formControlName="name" placeholder="Name" />
-  <input formControlName="email" placeholder="Email" />
-  <button type="submit">Submit</button>
+<!-- Introduction -->
+<div class="tutorial-section">
+  <h2>Forms Lab</h2>
+  <p class="tutorial-description">
+    This example demonstrates Angular Reactive Forms with Material UI components. 
+    Learn how to create forms, add validation, and handle form submission.
+  </p>
+</div>
+
+<!-- Basic Form Example -->
+<form [formGroup]="form" (ngSubmit)="submit()" class="form-container">
+  <!-- Name Field -->
+  <div class="form-field-container">
+    <p class="field-description">
+      Simple text input field using Material Form Field:
+    </p>
+    <mat-form-field appearance="outline">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" placeholder="Enter your name">
+    </mat-form-field>
+  </div>
+
+  <!-- Email Field with Validation -->
+  <div class="form-field-container">
+    <p class="field-description">
+      Email field with built-in validation and error message:
+    </p>
+    <mat-form-field appearance="outline">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email" placeholder="Enter your email" type="email">
+      <mat-error *ngIf="form.get('email')?.hasError('email')">
+        Please enter a valid email address
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <!-- Submit Button -->
+  <div class="form-field-container">
+    <p class="field-description">
+      Material raised button for form submission:
+    </p>
+    <button mat-raised-button color="primary" type="submit">Submit</button>
+  </div>
 </form>

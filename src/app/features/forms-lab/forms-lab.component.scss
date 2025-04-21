@@ -1,0 +1,29 @@
+.tutorial-section {
+  margin-bottom: 2rem;
+  
+  .tutorial-description {
+    color: #666;
+    line-height: 1.5;
+    margin: 1rem 0;
+  }
+}
+
+.form-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.form-field-container {
+  margin-bottom: 2rem;
+  
+  .field-description {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+
+  mat-form-field {
+    width: 100%;
+  }
+}

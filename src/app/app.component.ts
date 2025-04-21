@@ -3,6 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule, RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { NavigationComponent } from "./navigation/navigation.component";
 
 
 @Component({
@@ -13,7 +14,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,
-  ],
+    NavigationComponent
+],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
