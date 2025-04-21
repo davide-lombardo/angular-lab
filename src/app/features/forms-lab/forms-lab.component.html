@@ -1,44 +1,435 @@
 <!-- Introduction -->
 <div class="tutorial-section">
-  <h2>Forms Lab</h2>
+  <h2>Angular Forms Lab</h2>
   <p class="tutorial-description">
-    This example demonstrates Angular Reactive Forms with Material UI components. 
-    Learn how to create forms, add validation, and handle form submission.
+    This lab demonstrates various configurations of Angular Reactive Forms with Material UI components.
+    Learn how to create basic and advanced forms, add validation, handle dynamic form arrays, and manage form submission.
   </p>
 </div>
 
-<!-- Basic Form Example -->
-<form [formGroup]="form" (ngSubmit)="submit()" class="form-container">
-  <!-- Name Field -->
-  <div class="form-field-container">
-    <p class="field-description">
-      Simple text input field using Material Form Field:
-    </p>
-    <mat-form-field appearance="outline">
-      <mat-label>Name</mat-label>
-      <input matInput formControlName="name" placeholder="Enter your name">
-    </mat-form-field>
+<section class="forms-lab">
+  <!-- Basic Form Example -->
+  <div class="form-example">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Basic Form</mat-card-title>
+        <mat-card-subtitle>Simple form with required fields and validation</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="example-description">
+          This example shows a basic form with:
+          <ul>
+            <li>Required fields validation</li>
+            <li>Email format validation</li>
+            <li>Form submission handling</li>
+          </ul>
+        </div>
+        
+        <form [formGroup]="basicForm" (ngSubmit)="submitBasicForm()" class="form-container">
+          <!-- Name Field -->
+          <div class="form-field-container">
+            <mat-form-field appearance="outline">
+              <mat-label>Name</mat-label>
+              <input matInput formControlName="name" placeholder="Enter your name">
+              <mat-error *ngIf="basicForm.get('name')?.hasError('required') && (basicForm.get('name')?.touched || basicFormSubmitted)">
+                Name is required
+              </mat-error>
+            </mat-form-field>
+          </div>
+          
+          <!-- Email Field with Validation -->
+          <div class="form-field-container">
+            <mat-form-field appearance="outline">
+              <mat-label>Email</mat-label>
+              <input matInput formControlName="email" placeholder="Enter your email" type="email">
+              <mat-error *ngIf="basicForm.get('email')?.hasError('required') && (basicForm.get('email')?.touched || basicFormSubmitted)">
+                Email is required
+              </mat-error>
+              <mat-error *ngIf="basicForm.get('email')?.hasError('email') && !basicForm.get('email')?.hasError('required')">
+                Please enter a valid email address
+              </mat-error>
+            </mat-form-field>
+          </div>
+          
+          <!-- Submit Button -->
+          <div class="form-actions">
+            <button mat-raised-button color="primary" type="submit">Submit</button>
+            <span class="success-message" *ngIf="basicForm.valid && basicFormSubmitted">
+              Form submitted successfully!
+            </span>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
   </div>
-
-  <!-- Email Field with Validation -->
-  <div class="form-field-container">
-    <p class="field-description">
-      Email field with built-in validation and error message:
-    </p>
-    <mat-form-field appearance="outline">
-      <mat-label>Email</mat-label>
-      <input matInput formControlName="email" placeholder="Enter your email" type="email">
-      <mat-error *ngIf="form.get('email')?.hasError('email')">
-        Please enter a valid email address
-      </mat-error>
-    </mat-form-field>
+  
+  <!-- Advanced Form Example with Nested Form Groups -->
+  <div class="form-example">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Advanced Form</mat-card-title>
+        <mat-card-subtitle>Form with nested form groups and additional fields</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="example-description">
+          This example demonstrates:
+          <ul>
+            <li>Nested form groups (personal info, address, preferences)</li>
+            <li>Multiple input types (text, select, checkbox)</li>
+            <li>Pattern validation for postal code</li>
+          </ul>
+        </div>
+        
+        <form [formGroup]="advancedForm" (ngSubmit)="submitAdvancedForm()" class="form-container">
+          <!-- Personal Information Section -->
+          <div formGroupName="personalInfo" class="form-section">
+            <h3>Personal Information</h3>
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>First Name</mat-label>
+                <input matInput formControlName="firstName" placeholder="Enter first name">
+                <mat-error *ngIf="advancedForm.get('personalInfo.firstName')?.hasError('required') && 
+                                (advancedForm.get('personalInfo.firstName')?.touched || advancedFormSubmitted)">
+                  First name is required
+                </mat-error>
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline">
+                <mat-label>Last Name</mat-label>
+                <input matInput formControlName="lastName" placeholder="Enter last name">
+                <mat-error *ngIf="advancedForm.get('personalInfo.lastName')?.hasError('required') && 
+                                (advancedForm.get('personalInfo.lastName')?.touched || advancedFormSubmitted)">
+                  Last name is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+            
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Email</mat-label>
+              <input matInput formControlName="email" placeholder="Enter email" type="email">
+              <mat-error *ngIf="advancedForm.get('personalInfo.email')?.hasError('required') && 
+                              (advancedForm.get('personalInfo.email')?.touched || advancedFormSubmitted)">
+                Email is required
+              </mat-error>
+              <mat-error *ngIf="advancedForm.get('personalInfo.email')?.hasError('email') && 
+                              !advancedForm.get('personalInfo.email')?.hasError('required')">
+                Please enter a valid email address
+              </mat-error>
+            </mat-form-field>
+          </div>
+          
+          <!-- Address Information Section -->
+          <div formGroupName="addressInfo" class="form-section">
+            <h3>Address Information</h3>
+            
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Street</mat-label>
+              <input matInput formControlName="street" placeholder="Enter street address">
+              <mat-error *ngIf="advancedForm.get('addressInfo.street')?.hasError('required') && 
+                              (advancedForm.get('addressInfo.street')?.touched || advancedFormSubmitted)">
+                Street address is required
+              </mat-error>
+            </mat-form-field>
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>City</mat-label>
+                <input matInput formControlName="city" placeholder="Enter city">
+                <mat-error *ngIf="advancedForm.get('addressInfo.city')?.hasError('required') && 
+                                (advancedForm.get('addressInfo.city')?.touched || advancedFormSubmitted)">
+                  City is required
+                </mat-error>
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline">
+                <mat-label>Postal Code</mat-label>
+                <input matInput formControlName="postalCode" placeholder="Enter postal code">
+                <mat-hint>Format: 5 digits (e.g. 12345)</mat-hint>
+                <mat-error *ngIf="advancedForm.get('addressInfo.postalCode')?.hasError('required') && 
+                                (advancedForm.get('addressInfo.postalCode')?.touched || advancedFormSubmitted)">
+                  Postal code is required
+                </mat-error>
+                <mat-error *ngIf="advancedForm.get('addressInfo.postalCode')?.hasError('pattern') && 
+                                !advancedForm.get('addressInfo.postalCode')?.hasError('required')">
+                  Please enter a valid 5-digit postal code
+                </mat-error>
+              </mat-form-field>
+            </div>
+            
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Country</mat-label>
+              <mat-select formControlName="country">
+                <mat-option *ngFor="let country of countries" [value]="country">
+                  {{ country }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="advancedForm.get('addressInfo.country')?.hasError('required') && 
+                              (advancedForm.get('addressInfo.country')?.touched || advancedFormSubmitted)">
+                Country is required
+              </mat-error>
+            </mat-form-field>
+          </div>
+          
+          <!-- Preferences Section -->
+          <div formGroupName="preferences" class="form-section">
+            <h3>Preferences</h3>
+            
+            <div class="checkbox-field">
+              <mat-checkbox formControlName="receiveEmails">
+                Receive email updates
+              </mat-checkbox>
+            </div>
+            
+            <div class="radio-field">
+              <label>Theme Preference:</label>
+              <mat-radio-group formControlName="theme">
+                <mat-radio-button value="light">Light</mat-radio-button>
+                <mat-radio-button value="dark">Dark</mat-radio-button>
+                <mat-radio-button value="system">System Default</mat-radio-button>
+              </mat-radio-group>
+            </div>
+          </div>
+          
+          <!-- Submit Button -->
+          <div class="form-actions">
+            <button mat-raised-button color="primary" type="submit">Submit</button>
+            <span class="success-message" *ngIf="advancedForm.valid && advancedFormSubmitted">
+              Form submitted successfully!
+            </span>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
   </div>
-
-  <!-- Submit Button -->
-  <div class="form-field-container">
-    <p class="field-description">
-      Material raised button for form submission:
-    </p>
-    <button mat-raised-button color="primary" type="submit">Submit</button>
+  
+  <!-- Dynamic Form Example with FormArray -->
+  <div class="form-example">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Dynamic Form Array</mat-card-title>
+        <mat-card-subtitle>Working with dynamic form fields</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="example-description">
+          This example demonstrates:
+          <ul>
+            <li>Dynamic form fields with FormArray</li>
+            <li>Adding and removing form groups dynamically</li>
+            <li>Validation for each dynamic field</li>
+          </ul>
+        </div>
+        
+        <form [formGroup]="dynamicForm" (ngSubmit)="submitDynamicForm()" class="form-container">
+          <h3>User Skills</h3>
+          
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>User Name</mat-label>
+            <input matInput formControlName="userName" placeholder="Enter your name">
+            <mat-error *ngIf="dynamicForm.get('userName')?.hasError('required') && 
+                            (dynamicForm.get('userName')?.touched || dynamicFormSubmitted)">
+              User name is required
+            </mat-error>
+          </mat-form-field>
+          
+          <div class="skills-section">
+            <h4>Skills</h4>
+            <div formArrayName="skills">
+              <div *ngFor="let skill of skillsArray.controls; let i = index" class="skill-item">
+                <div [formGroupName]="i">
+                  <div class="skill-header">
+                    <h4>Skill #{{ i + 1 }}</h4>
+                    <button mat-icon-button type="button" color="warn" (click)="removeSkill(i)" 
+                            [disabled]="skillsArray.length === 1">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                  
+                  <div class="skill-fields">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Skill Name</mat-label>
+                      <input matInput formControlName="skillName" placeholder="e.g. Angular">
+                      <mat-error *ngIf="skill.get('skillName')?.hasError('required') && 
+                                      (skill.get('skillName')?.touched || dynamicFormSubmitted)">
+                        Skill name is required
+                      </mat-error>
+                    </mat-form-field>
+                    
+                    <mat-form-field appearance="outline">
+                      <mat-label>Skill Level</mat-label>
+                      <mat-select formControlName="skillLevel">
+                        <mat-option *ngFor="let level of skillLevels" [value]="level">
+                          {{ level }}
+                        </mat-option>
+                      </mat-select>
+                      <mat-error *ngIf="skill.get('skillLevel')?.hasError('required') && 
+                                      (skill.get('skillLevel')?.touched || dynamicFormSubmitted)">
+                        Skill level is required
+                      </mat-error>
+                    </mat-form-field>
+                    
+                    <mat-form-field appearance="outline">
+                      <mat-label>Years Experience</mat-label>
+                      <input matInput formControlName="yearsExperience" type="number" min="0">
+                      <mat-error *ngIf="skill.get('yearsExperience')?.hasError('required') && 
+                                      (skill.get('yearsExperience')?.touched || dynamicFormSubmitted)">
+                        Years of experience is required
+                      </mat-error>
+                      <mat-error *ngIf="skill.get('yearsExperience')?.hasError('min') && 
+                                     !skill.get('yearsExperience')?.hasError('required')">
+                        Cannot be negative
+                      </mat-error>
+                    </mat-form-field>
+                  </div>
+                  
+                  <mat-divider *ngIf="i < skillsArray.length - 1"></mat-divider>
+                </div>
+              </div>
+            </div>
+            
+            <div class="add-skill-button">
+              <button mat-stroked-button type="button" color="primary" (click)="addSkill()">
+                <mat-icon>add</mat-icon> Add Another Skill
+              </button>
+            </div>
+          </div>
+          
+          <!-- Submit Button -->
+          <div class="form-actions">
+            <button mat-raised-button color="primary" type="submit">Submit</button>
+            <span class="success-message" *ngIf="dynamicForm.valid && dynamicFormSubmitted">
+              Form submitted successfully!
+            </span>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
   </div>
-</form>
+  
+  <!-- Advanced Validation Form Example -->
+  <div class="form-example">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Advanced Validation Form</mat-card-title>
+        <mat-card-subtitle>Complex validations and custom validators</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="example-description">
+          This example demonstrates:
+          <ul>
+            <li>Custom validators (age range, password requirements)</li>
+            <li>Cross-field validation (password matching)</li>
+            <li>Date picker integration</li>
+            <li>Detailed error messaging</li>
+          </ul>
+        </div>
+        
+        <form [formGroup]="validationForm" (ngSubmit)="submitValidationForm()" class="form-container">
+          <h3>Registration Form</h3>
+          
+          <!-- Username with Pattern Validation -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Username</mat-label>
+            <input matInput formControlName="username" placeholder="Create a username">
+            <mat-hint>Letters, numbers and underscore only</mat-hint>
+            <mat-error *ngIf="validationForm.get('username')?.hasError('required') && 
+                            (validationForm.get('username')?.touched || validationFormSubmitted)">
+              Username is required
+            </mat-error>
+            <mat-error *ngIf="validationForm.get('username')?.hasError('minlength') && 
+                            !validationForm.get('username')?.hasError('required')">
+              Username must be at least 4 characters long
+            </mat-error>
+            <mat-error *ngIf="validationForm.get('username')?.hasError('pattern') && 
+                            !validationForm.get('username')?.hasError('minlength') && 
+                            !validationForm.get('username')?.hasError('required')">
+              Username can only contain letters, numbers and underscore
+            </mat-error>
+          </mat-form-field>
+          
+          <!-- Password with Complex Validation -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Password</mat-label>
+            <input matInput formControlName="password" type="password" placeholder="Create a password">
+            <mat-hint>Must contain uppercase, lowercase, number and special character</mat-hint>
+            <mat-error *ngIf="validationForm.get('password')?.hasError('required') && 
+                            (validationForm.get('password')?.touched || validationFormSubmitted)">
+              Password is required
+            </mat-error>
+            <mat-error *ngIf="validationForm.get('password')?.hasError('minlength') && 
+                            !validationForm.get('password')?.hasError('required')">
+              Password must be at least 8 characters long
+            </mat-error>
+            <mat-error *ngIf="validationForm.get('password')?.hasError('pattern') && 
+                            !validationForm.get('password')?.hasError('minlength') && 
+                            !validationForm.get('password')?.hasError('required')">
+              Password must include uppercase, lowercase, number and special character
+            </mat-error>
+          </mat-form-field>
+          
+          <!-- Confirm Password with Cross-Field Validation -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Confirm Password</mat-label>
+            <input matInput formControlName="confirmPassword" type="password" placeholder="Confirm your password">
+            <mat-error *ngIf="validationForm.get('confirmPassword')?.hasError('required') && 
+                            (validationForm.get('confirmPassword')?.touched || validationFormSubmitted)">
+              Please confirm your password
+            </mat-error>
+            <mat-error *ngIf="validationForm.get('confirmPassword')?.hasError('passwordMismatch') && 
+                            !validationForm.get('confirmPassword')?.hasError('required')">
+              Passwords don't match
+            </mat-error>
+          </mat-form-field>
+          
+          <div class="form-row">
+            <!-- Age with Custom Validator -->
+            <mat-form-field appearance="outline">
+              <mat-label>Age</mat-label>
+              <input matInput formControlName="age" type="number" placeholder="Enter your age">
+              <mat-hint>Must be between 18-120</mat-hint>
+              <mat-error *ngIf="validationForm.get('age')?.hasError('required') && 
+                              (validationForm.get('age')?.touched || validationFormSubmitted)">
+                Age is required
+              </mat-error>
+              <mat-error *ngIf="validationForm.get('age')?.hasError('ageRange') && 
+                              !validationForm.get('age')?.hasError('required')">
+                Age must be between 18 and 120
+              </mat-error>
+            </mat-form-field>
+            
+            <!-- Date Picker -->
+            <mat-form-field appearance="outline">
+              <mat-label>Birth Date</mat-label>
+              <input matInput [matDatepicker]="picker" formControlName="birthDate" placeholder="Choose a date">
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+              <mat-error *ngIf="validationForm.get('birthDate')?.hasError('required') && 
+                              (validationForm.get('birthDate')?.touched || validationFormSubmitted)">
+                Birth date is required
+              </mat-error>
+            </mat-form-field>
+          </div>
+          
+          <!-- Terms Checkbox with Required True Validator -->
+          <div class="checkbox-field">
+            <mat-checkbox formControlName="agreeTerms">
+              I agree to the terms and conditions
+            </mat-checkbox>
+            <mat-error *ngIf="validationForm.get('agreeTerms')?.hasError('required') && 
+                            (validationForm.get('agreeTerms')?.touched || validationFormSubmitted)">
+              You must agree to the terms
+            </mat-error>
+          </div>
+          
+          <!-- Submit Button -->
+          <div class="form-actions">
+            <button mat-raised-button color="primary" type="submit">Register</button>
+            <span class="success-message" *ngIf="validationForm.valid && validationFormSubmitted">
+              Registration successful!
+            </span>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</section>

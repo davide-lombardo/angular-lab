@@ -1,29 +1,51 @@
-.tutorial-section {
-  margin-bottom: 2rem;
-  
-  .tutorial-description {
-    color: #666;
-    line-height: 1.5;
-    margin: 1rem 0;
-  }
-}
-
-.form-container {
-  max-width: 600px;
-  margin: 0 auto;
+// Forms lab main container
+.forms-lab {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+  gap: 2rem;
   padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  
+  @media (max-width: 650px) {
+    grid-template-columns: 1fr;
+  }
 }
 
-.form-field-container {
+// Individual form example card
+.form-example {
   margin-bottom: 2rem;
   
-  .field-description {
-    color: #666;
-    font-size: 0.9rem;
-    margin-bottom: 0.5rem;
+  mat-card {
+    height: 100%;
+    
+    mat-card-header {
+      margin-bottom: 1rem;
+      
+      mat-card-title {
+        margin-bottom: 0.5rem;
+        font-size: 20px;
+        color: #3f51b5;
+      }
+      
+      mat-card-subtitle {
+        color: #666;
+      }
+    }
   }
-
-  mat-form-field {
-    width: 100%;
+  
+  // Description for each example
+  .example-description {
+    background-color: #f5f5f5;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #3f51b5;
+    
+    ul {
+      margin: 0.5rem 0 0 1.5rem;
+      padding: 0;
+      list-style-type: disc;
+    }
   }
 }

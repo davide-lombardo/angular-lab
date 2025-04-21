@@ -21,3 +21,18 @@ export interface ApiResponse<T> {
   page: number;
   pageSize: number;
 }
+
+export interface UserProfile {
+  name: string;
+  age: number;
+  preferences: {
+    theme: 'light' | 'dark';
+    notifications: boolean;
+  };
+}
+
+export interface CounterStats {
+  total: number;
+  average: number;
+  lastUpdated: Date;
+}

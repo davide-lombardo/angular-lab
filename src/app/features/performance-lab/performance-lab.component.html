@@ -1,0 +1,11 @@
+<mat-card class="lab-card">
+  <mat-card-title>Signals Performance Demo</mat-card-title>
+  <mat-card-content>
+    <p><strong>Counter:</strong> {{ counter() }}</p>
+    <p><strong>Computed:</strong> {{ expensiveComputation() }}</p>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-raised-button color="primary" (click)="increment()">+1</button>
+    <button mat-button color="warn" (click)="reset()">Reset</button>
+  </mat-card-actions>
+</mat-card>

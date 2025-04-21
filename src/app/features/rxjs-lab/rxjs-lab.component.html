@@ -1,0 +1,19 @@
+<mat-card class="lab-card">
+  <mat-card-title>RxJS Reactive Form</mat-card-title>
+  <mat-card-content>
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>First Name</mat-label>
+      <input matInput [formControl]="firstName" />
+    </mat-form-field>
+
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>Last Name</mat-label>
+      <input matInput [formControl]="lastName" />
+    </mat-form-field>
+
+    <p><strong>Full Name:</strong> {{ fullName }}</p>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-flat-button color="primary" (click)="reset()">Reset</button>
+  </mat-card-actions>
+</mat-card>

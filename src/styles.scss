@@ -12,14 +12,18 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
-
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: var(--text-primary);
 }
 
 a {
   color: var(--primary);
-  
+
   &:hover {
     color: var(--secondary);
   }
@@ -35,4 +39,22 @@ a {
 
 .disabled-text {
   color: var(--text-disabled);
+}
+
+.tutorial-section {
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+  padding: 1rem;
+  
+  h2 {
+    font-size: 28px;
+    margin-bottom: 1rem;
+    color: #3f51b5;
+  }
+  
+  .tutorial-description {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.5;
+  }
 }

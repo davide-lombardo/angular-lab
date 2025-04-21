@@ -14,6 +14,14 @@ export const routes: Routes = [
     loadComponent: () => import('./features/grid-lab/grid-lab.component').then(m => m.GridLabComponent),
   },
   {
+    path: 'performance-lab',
+    loadComponent: () => import('./features/performance-lab/performance-lab.component').then(m => m.PerformanceLabComponent),
+  },
+  {
+    path: 'rxjs-lab',
+    loadComponent: () => import('./features/rxjs-lab/rxjs-lab.component').then(m => m.RxjsLabComponent),
+  },
+  {
     path: '',
     pathMatch: 'full',
     redirectTo: 'forms-lab',
