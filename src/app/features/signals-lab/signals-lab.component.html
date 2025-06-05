@@ -15,153 +15,155 @@
         <mat-card-title>Enhanced Counter</mat-card-title>
         <mat-card-subtitle
           >Signal with history and computed stats</mat-card-subtitle
-        >
-      </mat-card-header>
-      <mat-card-content>
-        <div class="example-description">
-          This example demonstrates:
-          <ul>
-            <li>Basic writable signal</li>
-            <li>History tracking with signal array</li>
-            <li>Multiple computed values</li>
-            <li>Complex statistics computation</li>
-          </ul>
-        </div>
-        <div class="counter-display">
-          <p>Current Count: {{ count() }}</p>
-          <p>Double Value: {{ doubleCount() }}</p>
-          <div class="stats-section">
-            <h4>Statistics</h4>
-            <p>Total: {{ counterStats().total }}</p>
-            <p>Average: {{ counterStats().average | number : "1.0-2" }}</p>
-            <p>
-              Last Updated: {{ counterStats().lastUpdated | date : "medium" }}
-            </p>
+          >
+        </mat-card-header>
+        <mat-card-content>
+          <div class="example-description">
+            This example demonstrates:
+            <ul>
+              <li>Basic writable signal</li>
+              <li>History tracking with signal array</li>
+              <li>Multiple computed values</li>
+              <li>Complex statistics computation</li>
+            </ul>
           </div>
-          <div class="history-section">
-            <h4>History (Last 5)</h4>
-            <p>{{ countHistory().join(" → ") }}</p>
+          <div class="counter-display">
+            <p>Current Count: {{ count() }}</p>
+            <p>Double Value: {{ doubleCount() }}</p>
+            <div class="stats-section">
+              <h4>Statistics</h4>
+              <p>Total: {{ counterStats().total }}</p>
+              <p>Average: {{ counterStats().average | number : "1.0-2" }}</p>
+              <p>
+                Last Updated: {{ counterStats().lastUpdated | date : "medium" }}
+              </p>
+            </div>
+            <div class="history-section">
+              <h4>History (Last 5)</h4>
+              <p>{{ countHistory().join(" → ") }}</p>
+            </div>
           </div>
-        </div>
-      </mat-card-content>
-      <mat-card-actions>
-        <button mat-raised-button color="primary" (click)="increment()">
-          <mat-icon>add</mat-icon> Increment
-        </button>
-        <button mat-raised-button color="warn" (click)="decrement()">
-          <mat-icon>remove</mat-icon> Decrement
-        </button>
-      </mat-card-actions>
-    </mat-card>
-  </div>
-
-  <!-- Todo List Example -->
-  <div class="signal-example">
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Enhanced Todo List</mat-card-title>
-        <mat-card-subtitle
-          >Signal array with completion tracking</mat-card-subtitle
-        >
-      </mat-card-header>
-      <mat-card-content>
-        <div class="example-description">
-          This example showcases:
-          <ul>
-            <li>Signal array management</li>
-            <li>Completion tracking with Set</li>
-            <li>Computed counts</li>
-            <li>Form integration</li>
-          </ul>
-        </div>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>New Todo</mat-label>
-          <input
-            matInput
-            [formControl]="todoInput"
-            placeholder="Enter a new todo"
-          />
-          <button matSuffix mat-icon-button (click)="addTodo()">
-            <mat-icon>add</mat-icon>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button color="primary" (click)="increment()">
+            <mat-icon>add</mat-icon> Increment
           </button>
-        </mat-form-field>
+          <button mat-raised-button color="warn" (click)="decrement()">
+            <mat-icon>remove</mat-icon> Decrement
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
 
-        <mat-list>
-          <mat-list-item *ngFor="let todo of todos(); let i = index">
-            <mat-checkbox
-              [checked]="completedTodos().has(i)"
-              (change)="toggleTodoComplete(i)"
+    <!-- Todo List Example -->
+    <div class="signal-example">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Enhanced Todo List</mat-card-title>
+          <mat-card-subtitle
+            >Signal array with completion tracking</mat-card-subtitle
             >
-              <span [class.completed]="completedTodos().has(i)">{{
-                todo
-              }}</span>
-            </mat-checkbox>
-            <button mat-icon-button matListItemMeta (click)="removeTodo(i)">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </mat-list-item>
-        </mat-list>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="example-description">
+              This example showcases:
+              <ul>
+                <li>Signal array management</li>
+                <li>Completion tracking with Set</li>
+                <li>Computed counts</li>
+                <li>Form integration</li>
+              </ul>
+            </div>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>New Todo</mat-label>
+              <input
+                matInput
+                [formControl]="todoInput"
+                placeholder="Enter a new todo"
+                />
+                <button matSuffix mat-icon-button (click)="addTodo()">
+                  <mat-icon>add</mat-icon>
+                </button>
+              </mat-form-field>
 
-        <div class="todo-stats">
-          <p>Total todos: {{ todoCount() }}</p>
-          <p>Active todos: {{ activeTodosCount() }}</p>
-          <p>Completed: {{ completedTodos().size }}</p>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
+              <mat-list>
+                @for (todo of todos(); track todo; let i = $index) {
+                  <mat-list-item>
+                    <mat-checkbox
+                      [checked]="completedTodos().has(i)"
+                      (change)="toggleTodoComplete(i)"
+                      >
+                      <span [class.completed]="completedTodos().has(i)">{{
+                        todo
+                      }}</span>
+                    </mat-checkbox>
+                    <button mat-icon-button matListItemMeta (click)="removeTodo(i)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </mat-list-item>
+                }
+              </mat-list>
 
-  <!-- User Profile Example -->
-  <div class="signal-example">
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>User Profile</mat-card-title>
-        <mat-card-subtitle>Object signal with preferences</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="example-description">
-          This example demonstrates:
-          <ul>
-            <li>Object signal management</li>
-            <li>Nested updates</li>
-            <li>Effects for theme</li>
-            <li>Computed properties</li>
-          </ul>
-        </div>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Name</mat-label>
-          <input matInput [formControl]="nameInput" placeholder="Enter name" />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Age</mat-label>
-          <input
-            matInput
-            type="number"
-            [formControl]="ageInput"
-            placeholder="Enter age"
-          />
-        </mat-form-field>
-
-        <div class="preferences-section">
-          <h4>Preferences</h4>
-          <mat-slide-toggle (change)="toggleTheme()">
-            {{ themePreference() === "dark" ? "Dark" : "Light" }} Theme
-          </mat-slide-toggle>
-          <mat-slide-toggle (change)="toggleNotifications()">
-            Notifications
-            {{ userProfile().preferences.notifications ? "On" : "Off" }}
-          </mat-slide-toggle>
+              <div class="todo-stats">
+                <p>Total todos: {{ todoCount() }}</p>
+                <p>Active todos: {{ activeTodosCount() }}</p>
+                <p>Completed: {{ completedTodos().size }}</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
         </div>
 
-        <div class="profile-preview">
-          <h4>Profile Summary</h4>
-          <p>Name: {{ userProfile().name }}</p>
-          <p>Age: {{ userProfile().age }}</p>
-          <p>Is Adult: {{ isAdult() }}</p>
-          <p>Last Updated: {{ lastUpdated() | date : "medium" }}</p>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
-</section>
+        <!-- User Profile Example -->
+        <div class="signal-example">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>User Profile</mat-card-title>
+              <mat-card-subtitle>Object signal with preferences</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="example-description">
+                This example demonstrates:
+                <ul>
+                  <li>Object signal management</li>
+                  <li>Nested updates</li>
+                  <li>Effects for theme</li>
+                  <li>Computed properties</li>
+                </ul>
+              </div>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Name</mat-label>
+                <input matInput [formControl]="nameInput" placeholder="Enter name" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Age</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  [formControl]="ageInput"
+                  placeholder="Enter age"
+                  />
+                </mat-form-field>
+
+                <div class="preferences-section">
+                  <h4>Preferences</h4>
+                  <mat-slide-toggle (change)="toggleTheme()">
+                    {{ themePreference() === "dark" ? "Dark" : "Light" }} Theme
+                  </mat-slide-toggle>
+                  <mat-slide-toggle (change)="toggleNotifications()">
+                    Notifications
+                    {{ userProfile().preferences.notifications ? "On" : "Off" }}
+                  </mat-slide-toggle>
+                </div>
+
+                <div class="profile-preview">
+                  <h4>Profile Summary</h4>
+                  <p>Name: {{ userProfile().name }}</p>
+                  <p>Age: {{ userProfile().age }}</p>
+                  <p>Is Adult: {{ isAdult() }}</p>
+                  <p>Last Updated: {{ lastUpdated() | date : "medium" }}</p>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </section>

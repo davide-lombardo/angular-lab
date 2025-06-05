@@ -1,4 +1,4 @@
-<ng-container *ngIf="showTabs(); else singleGrid">
+@if (showTabs()) {
   <mat-tab-group (selectedTabChange)="onTabChange($event)">
     <mat-tab [label]="activeTabLabel()">
       <ng-template matTabContent>
@@ -11,13 +11,12 @@
               form: filterForms.active
             }
           "
-        ></ng-container>
-      </ng-template>
-    </mat-tab>
-
-    <mat-tab [label]="inactiveTabLabel()">
-      <ng-template matTabContent>
-        <ng-container
+      ></ng-container>
+    </ng-template>
+  </mat-tab>
+  <mat-tab [label]="inactiveTabLabel()">
+    <ng-template matTabContent>
+      <ng-container
           *ngTemplateOutlet="
             gridTemplate;
             context: {
@@ -26,13 +25,12 @@
               form: filterForms.inactive
             }
           "
-        ></ng-container>
-      </ng-template>
-    </mat-tab>
-
-    <mat-tab [label]="archivedTabLabel()">
-      <ng-template matTabContent>
-        <ng-container
+    ></ng-container>
+  </ng-template>
+</mat-tab>
+<mat-tab [label]="archivedTabLabel()">
+  <ng-template matTabContent>
+    <ng-container
           *ngTemplateOutlet="
             gridTemplate;
             context: {
@@ -41,13 +39,11 @@
               form: filterForms.archived
             }
           "
-        ></ng-container>
-      </ng-template>
-    </mat-tab>
-  </mat-tab-group>
-</ng-container>
-
-<ng-template #singleGrid>
+  ></ng-container>
+</ng-template>
+</mat-tab>
+</mat-tab-group>
+} @else {
   <ng-container
     *ngTemplateOutlet="
       gridTemplate;
@@ -57,60 +53,68 @@
         form: filterForms.active
       }
     "
-  ></ng-container>
-</ng-template>
+></ng-container>
+}
+
 
 <ng-template #gridTemplate let-type="type" let-data="data" let-form="form">
   <div class="toolbar">
     <h4>{{ type | titlecase }} {{ title() }}</h4>
     <div class="actions">
-      <mat-form-field appearance="outline" *ngIf="showSearch()">
-        <mat-label>{{ searchLabel() }}</mat-label>
-        <input
-          matInput
-          [formControl]="form.get('search')"
-          [placeholder]="searchPlaceholder()"
-        />
-        <button mat-icon-button matSuffix disabled>
-          <mat-icon>search</mat-icon>
+      @if (showSearch()) {
+        <mat-form-field appearance="outline">
+          <mat-label>{{ searchLabel() }}</mat-label>
+          <input
+            matInput
+            [formControl]="form.get('search')"
+            [placeholder]="searchPlaceholder()"
+            />
+            <button mat-icon-button matSuffix disabled>
+              <mat-icon>search</mat-icon>
+            </button>
+          </mat-form-field>
+        }
+        <button mat-raised-button color="primary" (click)="addItem()">
+          <mat-icon>add</mat-icon>
+          {{ addButtonLabel() }}
         </button>
-      </mat-form-field>
-      <button mat-raised-button color="primary" (click)="addItem()">
-        <mat-icon>add</mat-icon>
-        {{ addButtonLabel() }}
-      </button>
-      <button
-        mat-raised-button
-        color="accent"
-        *ngIf="enableExport()"
-        (click)="exportToExcel()"
-      >
-        <mat-icon>download</mat-icon>
-        Export
-      </button>
+        @if (enableExport()) {
+          <button
+            mat-raised-button
+            color="accent"
+            (click)="exportToExcel()"
+            >
+            <mat-icon>download</mat-icon>
+            Export
+          </button>
+        }
+      </div>
     </div>
-  </div>
 
-  <div *ngIf="loading()" class="loading-overlay">
-    <mat-spinner diameter="40"></mat-spinner>
-  </div>
+    @if (loading()) {
+      <div class="loading-overlay">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    }
 
-  <div *ngIf="error()" class="error-message">
-    <mat-icon color="warn">error</mat-icon>
-    <span>{{ error() }}</span>
-  </div>
+    @if (error()) {
+      <div class="error-message">
+        <mat-icon color="warn">error</mat-icon>
+        <span>{{ error() }}</span>
+      </div>
+    }
 
-  <ag-grid-angular
-    class="ag-theme-alpine"
-    style="width: 100%; height: 400px"
-    [rowData]="data"
-    [columnDefs]="columnDefs()"
-    [defaultColDef]="defaultColDef"
-    [pagination]="enablePagination()"
-    [paginationPageSize]="10"
-    [paginationPageSize]="pageSize()"
-    [rowSelection]="rowSelection()"
-    (gridReady)="onGridReady($event, type)"
-  >
-  </ag-grid-angular>
-</ng-template>
+    <ag-grid-angular
+      class="ag-theme-alpine"
+      style="width: 100%; height: 400px"
+      [rowData]="data"
+      [columnDefs]="columnDefs()"
+      [defaultColDef]="defaultColDef"
+      [pagination]="enablePagination()"
+      [paginationPageSize]="10"
+      [paginationPageSize]="pageSize()"
+      [rowSelection]="rowSelection()"
+      (gridReady)="onGridReady($event, type)"
+      >
+    </ag-grid-angular>
+  </ng-template>

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit } from '@angular/core';
 import { 
   FormArray,
@@ -33,7 +33,6 @@ function ageRangeValidator(control: FormControl): {[key: string]: boolean} | nul
   selector: 'app-forms-lab',
   standalone: true,
   imports: [
-    CommonModule, 
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
@@ -47,7 +46,7 @@ function ageRangeValidator(control: FormControl): {[key: string]: boolean} | nul
     MatNativeDateModule,
     MatSliderModule,
     MatDividerModule
-  ],
+],
   templateUrl: './forms-lab.component.html',
   styleUrl: './forms-lab.component.scss'
 })
