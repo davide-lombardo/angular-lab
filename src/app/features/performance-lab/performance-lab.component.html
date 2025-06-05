@@ -1,11 +1,336 @@
-<mat-card class="lab-card">
-  <mat-card-title>Signals Performance Demo</mat-card-title>
-  <mat-card-content>
-    <p><strong>Counter:</strong> {{ counter() }}</p>
-    <p><strong>Computed:</strong> {{ expensiveComputation() }}</p>
-  </mat-card-content>
-  <mat-card-actions>
-    <button mat-raised-button color="primary" (click)="increment()">+1</button>
-    <button mat-button color="warn" (click)="reset()">Reset</button>
-  </mat-card-actions>
-</mat-card>
+<div class="tutorial-section">
+  <h2>Performance Lab</h2>
+  <p class="tutorial-description">
+    This lab demonstrates signals performance with various examples. Watch how
+    signals recompute only when their dependencies change, saving unnecessary
+    computations.
+  </p>
+</div>
+
+<div class="performance-lab">
+  <mat-card class="metrics-card">
+    <mat-card-header>
+      <mat-card-title>Performance Metrics</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="metrics-grid">
+        <div class="metric">
+          <span class="metric-label">Computation Time:</span>
+          <span [ngClass]="'metric-value ' + performanceRating()">
+            {{ lastComputationTime() | number : "1.2-2" }}ms
+            <mat-icon [matTooltip]="'Performance: ' + performanceRating()">
+              {{ getPerformanceIcon(performanceRating()) }}
+            </mat-icon>
+          </span>
+        </div>
+
+        <div class="metric">
+          <span class="metric-label">List Generation:</span>
+          <span
+            [ngClass]="
+              'metric-value ' + getPerformanceClass(listGenerationTime())
+            "
+          >
+            {{ listGenerationTime() | number : "1.2-2" }}ms
+            <mat-icon
+              [matTooltip]="
+                'Performance: ' + getPerformanceClass(listGenerationTime())
+              "
+            >
+              {{
+                getPerformanceIcon(getPerformanceClass(listGenerationTime()))
+              }}
+            </mat-icon>
+          </span>
+        </div>
+
+        <div class="metric">
+          <span class="metric-label">Image Load Time:</span>
+          <span
+            [ngClass]="'metric-value ' + getPerformanceClass(imageLoadTime())"
+          >
+            {{ imageLoadTime() | number : "1.2-2" }}ms
+            <mat-icon
+              [matTooltip]="
+                'Performance: ' + getPerformanceClass(imageLoadTime())
+              "
+            >
+              {{ getPerformanceIcon(getPerformanceClass(imageLoadTime())) }}
+            </mat-icon>
+          </span>
+        </div>
+
+        <div class="metric">
+          <span class="metric-label">Total Render Time:</span>
+          <span
+            [ngClass]="'metric-value ' + getPerformanceClass(totalRenderTime())"
+          >
+            {{ totalRenderTime() | number : "1.2-2" }}ms
+          </span>
+        </div>
+      </div>
+
+      <div class="performance-legend">
+        <div class="legend-item">
+          <span class="legend-color excellent"></span>
+          <span>Excellent (&lt;10ms)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color good"></span>
+          <span>Good (&lt;50ms)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color fair"></span>
+          <span>Fair (&lt;100ms)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color poor"></span>
+          <span>Poor (&gt;100ms)</span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-tab-group>
+    <!-- Counter Example Tab -->
+    <mat-tab label="Counter Example">
+      <mat-card class="example-card">
+        <mat-card-header>
+          <mat-card-title>Basic Signal Counter</mat-card-title>
+          <mat-card-subtitle
+            >Demonstrates basic signal computation with a
+            counter</mat-card-subtitle
+          >
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="counter-display">
+            <div class="value-display">
+              <span class="label">Counter Value:</span>
+              <span class="value">{{ counter() }}</span>
+            </div>
+
+            <div class="value-display">
+              <span class="label">Computed Value:</span>
+              <span class="value">{{ expensiveComputation() }}</span>
+              <span class="computation-badge" [ngClass]="performanceRating()">
+                {{ lastComputationTime() | number : "1.2-2" }}ms
+              </span>
+            </div>
+          </div>
+
+          <div class="explanation">
+            <p>
+              This example shows a basic counter with an expensive computed
+              value. The computation only runs when the counter changes, not on
+              every render.
+            </p>
+          </div>
+        </mat-card-content>
+
+        <mat-divider></mat-divider>
+
+        <mat-card-actions>
+          <button mat-raised-button color="primary" (click)="increment()">
+            Increment
+          </button>
+          <button mat-button color="warn" (click)="reset()">Reset</button>
+        </mat-card-actions>
+      </mat-card>
+    </mat-tab>
+
+    <!-- List Rendering Tab -->
+    <mat-tab label="List Rendering">
+      <mat-card class="example-card">
+        <mat-card-header>
+          <mat-card-title>List Rendering Performance</mat-card-title>
+          <mat-card-subtitle>
+            Test how signals handle dynamic lists of different sizes
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="control-panel">
+            <div class="input-group">
+              <label>List Size: {{ listSize() }}</label>
+              <input
+                type="range"
+                min="0"
+                max="5000"
+                [value]="listSize()"
+                (input)="updateListSize($event)"
+              />
+            </div>
+            <mat-chip-set>
+              <mat-chip (click)="listSize.set(10)">10</mat-chip>
+              <mat-chip (click)="listSize.set(100)">100</mat-chip>
+              <mat-chip (click)="listSize.set(1000)">1,000</mat-chip>
+              <mat-chip
+                (click)="listSize.set(5000)"
+                [matTooltip]="'May cause performance issues'"
+                >5,000</mat-chip
+              >
+            </mat-chip-set>
+          </div>
+
+          <div class="performance-indicator">
+            <span>Generation Time: </span>
+            <span [ngClass]="getPerformanceClass(listGenerationTime())">
+              {{ listGenerationTime() | number : "1.2-2" }}ms
+            </span>
+          </div>
+
+          <div class="explanation">
+            <p>
+              This example shows how signals handle list generation and
+              rendering. The list is only regenerated when the size changes.
+            </p>
+          </div>
+
+          <div class="list-container">
+            @for (item of listItems().slice(0, 100); track $index) {
+            <div
+              class="list-item"
+              [class.selected]="item.id === selectedItemId()"
+              (click)="selectItem(item.id)"
+            >
+              <span class="item-name">{{ item.name }}</span>
+              <span
+                class="item-complexity"
+                [ngClass]="getPerformanceClass(item.complexity)"
+              >
+                {{ item.complexity }}
+              </span>
+            </div>
+            } @if (listItems().length > 100) {
+            <div class="more-items">
+              ... {{ listItems().length - 100 }} more items (not shown to
+              preserve performance)
+            </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </mat-tab>
+
+    <!-- Image Rendering Tab -->
+    <mat-tab label="Image Rendering">
+      <mat-card class="example-card">
+        <mat-card-header>
+          <mat-card-title>Image Rendering Performance</mat-card-title>
+          <mat-card-subtitle>
+            Test how signals handle image loading and rendering
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="control-panel">
+            <div class="input-group">
+              <label>Image Count: {{ imageCount() }}</label>
+              <input
+                type="range"
+                min="1"
+                max="100"
+                [value]="imageCount()"
+                (input)="updateImageCount($event)"
+              />
+            </div>
+            <mat-chip-set>
+              <mat-chip (click)="imageCount.set(1)">1</mat-chip>
+              <mat-chip (click)="imageCount.set(10)">10</mat-chip>
+              <mat-chip (click)="imageCount.set(50)">50</mat-chip>
+              <mat-chip
+                (click)="imageCount.set(100)"
+                [matTooltip]="'May cause performance issues'"
+                >100</mat-chip
+              >
+            </mat-chip-set>
+          </div>
+
+          <div class="performance-indicator">
+            <span>Load Time: </span>
+            <span [ngClass]="getPerformanceClass(imageLoadTime())">
+              {{ imageLoadTime() | number : "1.2-2" }}ms
+            </span>
+          </div>
+
+          <div class="explanation">
+            <p>
+              This example shows how signals handle dynamic image loading. Watch
+              how performance degrades as more images are rendered.
+            </p>
+          </div>
+
+          <div class="image-grid">
+            @for (item of [].constructor(imageCount() < 100 ? imageCount() :
+            100); track $index; let idx = $index) {
+            <div class="image-container">
+              <img
+                [src]="
+                  'https://via.assets.so/movie.png?id=' +
+                  idx +
+                  '&q=95&w=' +
+                  imageSize() +
+                  '&h=' +
+                  imageSize() +
+                  '&fit=fill'
+                "
+                [alt]="'Placeholder image ' + idx"
+                loading="lazy"
+              />
+            </div>
+            } @if (imageCount() > 100) {
+            <div class="more-items">
+              ... {{ imageCount() - 100 }} more images (not shown to preserve
+              performance)
+            </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </mat-tab>
+
+    <!-- Performance Logs Tab -->
+    <mat-tab label="Performance Logs">
+      <mat-card class="example-card">
+        <mat-card-header>
+          <mat-card-title>Render Performance Logs</mat-card-title>
+          <mat-card-subtitle
+            >Track render times and signal updates</mat-card-subtitle
+          >
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="log-container">
+            <table class="log-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Time</th>
+                  <th>Message</th>
+                  <th>Duration</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (log of renderLogs(); track $index; let idx = $index) {
+                <tr [ngClass]="getPerformanceClass(log.duration)">
+                  <td>{{ renderLogs().length - idx }}</td>
+                  <td>{{ log.timestamp | date : "HH:mm:ss.SSS" }}</td>
+                  <td>{{ log.message }}</td>
+                  <td>{{ log.duration | number : "1.2-2" }}ms</td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </mat-card-content>
+
+        <mat-card-actions>
+          <button mat-button color="warn" (click)="resetAllMetrics()">
+            Reset All
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </mat-tab>
+  </mat-tab-group>
+</div>

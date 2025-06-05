@@ -17,10 +17,10 @@ export const routes: Routes = [
     path: 'performance-lab',
     loadComponent: () => import('./features/performance-lab/performance-lab.component').then(m => m.PerformanceLabComponent),
   },
-  {
-    path: 'rxjs-lab',
-    loadComponent: () => import('./features/rxjs-lab/rxjs-lab.component').then(m => m.RxjsLabComponent),
-  },
+  // {
+  //   path: 'rxjs-lab',
+  //   loadComponent: () => import('./features/rxjs-lab/rxjs-lab.component').then(m => m.RxjsLabComponent),
+  // },
   {
     path: '',
     pathMatch: 'full',
