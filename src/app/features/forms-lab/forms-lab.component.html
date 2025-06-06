@@ -1,9 +1,10 @@
 <!-- Introduction -->
 <div class="tutorial-section">
-  <h2>Angular Forms Lab</h2>
+  <h2>Angular 20 Forms Lab</h2>
   <p class="tutorial-description">
-    This lab demonstrates various configurations of Angular Reactive Forms with Material UI components.
-    Learn how to create basic and advanced forms, add validation, handle dynamic form arrays, and manage form submission.
+    This lab demonstrates modern Angular 20 reactive forms with the latest
+    features including signals, new control flow syntax, improved form handling,
+    and enhanced validation patterns.
   </p>
 </div>
 
@@ -12,57 +13,74 @@
   <div class="form-example">
     <mat-card>
       <mat-card-header>
-        <mat-card-title>Basic Form</mat-card-title>
-        <mat-card-subtitle>Simple form with required fields and validation</mat-card-subtitle>
+        <mat-card-title>Basic Form (Angular 20)</mat-card-title>
+        <mat-card-subtitle
+          >Modern form with signals and new control flow</mat-card-subtitle
+        >
       </mat-card-header>
       <mat-card-content>
         <div class="example-description">
-          This example shows a basic form with:
+          This example demonstrates:
           <ul>
-            <li>Required fields validation</li>
-            <li>Email format validation</li>
-            <li>Form submission handling</li>
+            <li>Signal-based form state management</li>
+            <li>Improved error handling</li>
+            <li>Modern dependency injection</li>
           </ul>
         </div>
 
-        <form [formGroup]="basicForm" (ngSubmit)="submitBasicForm()" class="form-container">
+        <form
+          [formGroup]="basicForm"
+          (ngSubmit)="submitBasicForm()"
+          class="form-container"
+        >
           <!-- Name Field -->
           <div class="form-field-container">
             <mat-form-field appearance="outline">
               <mat-label>Name</mat-label>
-              <input matInput formControlName="name" placeholder="Enter your name">
-              @if (basicForm.get('name')?.hasError('required') && (basicForm.get('name')?.touched || basicFormSubmitted)) {
-                <mat-error>
-                  Name is required
-                </mat-error>
+              <input
+                matInput
+                formControlName="name"
+                placeholder="Enter your full name"
+              />
+              @if (shouldShowError(basicForm, 'name')) {
+                <mat-error>{{ getFieldError(basicForm, 'name') }}</mat-error>
               }
             </mat-form-field>
           </div>
 
-          <!-- Email Field with Validation -->
+          <!-- Email Field -->
           <div class="form-field-container">
             <mat-form-field appearance="outline">
               <mat-label>Email</mat-label>
-              <input matInput formControlName="email" placeholder="Enter your email" type="email">
-              @if (basicForm.get('email')?.hasError('required') && (basicForm.get('email')?.touched || basicFormSubmitted)) {
-                <mat-error>
-                  Email is required
-                </mat-error>
-              }
-              @if (basicForm.get('email')?.hasError('email') && !basicForm.get('email')?.hasError('required')) {
-                <mat-error>
-                  Please enter a valid email address
-                </mat-error>
+              <input
+                matInput
+                formControlName="email"
+                placeholder="Enter your email"
+                type="email"
+              />
+              @if (shouldShowError(basicForm, 'email')) {
+                <mat-error>{{ getFieldError(basicForm, 'email') }}</mat-error>
               }
             </mat-form-field>
           </div>
 
-          <!-- Submit Button -->
+          <!-- Submit Button with Signal State -->
           <div class="form-actions">
-            <button mat-raised-button color="primary" type="submit">Submit</button>
-            @if (basicForm.valid && basicFormSubmitted) {
+            <button
+              mat-raised-button
+              color="primary"
+              type="submit"
+              [disabled]="formSubmissionStates().basic"
+            >
+              @if (formSubmissionStates().basic) {
+                Submitting...
+              } @else {
+                Submit
+              }
+            </button>
+            @if (basicFormValid() && formSubmissionStates().basic) {
               <span class="success-message">
-                Form submitted successfully!
+                ✅ Form submitted successfully!
               </span>
             }
           </div>
@@ -71,112 +89,122 @@
     </mat-card>
   </div>
 
-  <!-- Advanced Form Example with Nested Form Groups -->
+  <!-- Advanced Form with Enhanced Nested Groups -->
   <div class="form-example">
     <mat-card>
       <mat-card-header>
-        <mat-card-title>Advanced Form</mat-card-title>
-        <mat-card-subtitle>Form with nested form groups and additional fields</mat-card-subtitle>
+        <mat-card-title>Advanced Nested Form</mat-card-title>
+        <mat-card-subtitle
+          >Complex form structure with modern patterns</mat-card-subtitle
+        >
       </mat-card-header>
       <mat-card-content>
         <div class="example-description">
-          This example demonstrates:
+          This example shows:
           <ul>
-            <li>Nested form groups (personal info, address, preferences)</li>
-            <li>Multiple input types (text, select, checkbox)</li>
-            <li>Pattern validation for postal code</li>
+            <li>Multi-level nested form groups</li>
+            <li>Enhanced validation patterns</li>
+            <li>Computed form validity signals</li>
+            <li>Modern TypeScript readonly arrays</li>
           </ul>
         </div>
 
-        <form [formGroup]="advancedForm" (ngSubmit)="submitAdvancedForm()" class="form-container">
+        <form
+          [formGroup]="advancedForm"
+          (ngSubmit)="submitAdvancedForm()"
+          class="form-container"
+        >
           <!-- Personal Information Section -->
           <div formGroupName="personalInfo" class="form-section">
-            <h3>Personal Information</h3>
+            <h3>👤 Personal Information</h3>
 
             <div class="form-row">
               <mat-form-field appearance="outline">
                 <mat-label>First Name</mat-label>
-                <input matInput formControlName="firstName" placeholder="Enter first name">
-                @if (advancedForm.get('personalInfo.firstName')?.hasError('required') &&
-                  (advancedForm.get('personalInfo.firstName')?.touched || advancedFormSubmitted)) {
-                  <mat-error>
-                    First name is required
-                  </mat-error>
+                <input
+                  matInput
+                  formControlName="firstName"
+                  placeholder="First name"
+                />
+                @if (shouldShowError(advancedForm, 'personalInfo.firstName')) {
+                  <mat-error>{{
+                    getFieldError(advancedForm, 'personalInfo.firstName')
+                  }}</mat-error>
                 }
               </mat-form-field>
 
               <mat-form-field appearance="outline">
                 <mat-label>Last Name</mat-label>
-                <input matInput formControlName="lastName" placeholder="Enter last name">
-                @if (advancedForm.get('personalInfo.lastName')?.hasError('required') &&
-                  (advancedForm.get('personalInfo.lastName')?.touched || advancedFormSubmitted)) {
-                  <mat-error>
-                    Last name is required
-                  </mat-error>
+                <input
+                  matInput
+                  formControlName="lastName"
+                  placeholder="Last name"
+                />
+                @if (shouldShowError(advancedForm, 'personalInfo.lastName')) {
+                  <mat-error>{{
+                    getFieldError(advancedForm, 'personalInfo.lastName')
+                  }}</mat-error>
                 }
               </mat-form-field>
             </div>
 
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Email</mat-label>
-              <input matInput formControlName="email" placeholder="Enter email" type="email">
-              @if (advancedForm.get('personalInfo.email')?.hasError('required') &&
-                (advancedForm.get('personalInfo.email')?.touched || advancedFormSubmitted)) {
-                <mat-error>
-                  Email is required
-                </mat-error>
-              }
-              @if (advancedForm.get('personalInfo.email')?.hasError('email') &&
-                !advancedForm.get('personalInfo.email')?.hasError('required')) {
-                <mat-error>
-                  Please enter a valid email address
-                </mat-error>
+              <input
+                matInput
+                formControlName="email"
+                placeholder="your.email@example.com"
+                type="email"
+              />
+              @if (shouldShowError(advancedForm, 'personalInfo.email')) {
+                <mat-error>{{
+                  getFieldError(advancedForm, 'personalInfo.email')
+                }}</mat-error>
               }
             </mat-form-field>
           </div>
 
           <!-- Address Information Section -->
           <div formGroupName="addressInfo" class="form-section">
-            <h3>Address Information</h3>
+            <h3>🏠 Address Information</h3>
 
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Street</mat-label>
-              <input matInput formControlName="street" placeholder="Enter street address">
-              @if (advancedForm.get('addressInfo.street')?.hasError('required') &&
-                (advancedForm.get('addressInfo.street')?.touched || advancedFormSubmitted)) {
-                <mat-error>
-                  Street address is required
-                </mat-error>
+              <mat-label>Street Address</mat-label>
+              <input
+                matInput
+                formControlName="street"
+                placeholder="123 Main Street"
+              />
+              @if (shouldShowError(advancedForm, 'addressInfo.street')) {
+                <mat-error>{{
+                  getFieldError(advancedForm, 'addressInfo.street')
+                }}</mat-error>
               }
             </mat-form-field>
 
             <div class="form-row">
               <mat-form-field appearance="outline">
                 <mat-label>City</mat-label>
-                <input matInput formControlName="city" placeholder="Enter city">
-                @if (advancedForm.get('addressInfo.city')?.hasError('required') &&
-                  (advancedForm.get('addressInfo.city')?.touched || advancedFormSubmitted)) {
-                  <mat-error>
-                    City is required
-                  </mat-error>
+                <input matInput formControlName="city" placeholder="Rome" />
+                @if (shouldShowError(advancedForm, 'addressInfo.city')) {
+                  <mat-error>{{
+                    getFieldError(advancedForm, 'addressInfo.city')
+                  }}</mat-error>
                 }
               </mat-form-field>
 
               <mat-form-field appearance="outline">
                 <mat-label>Postal Code</mat-label>
-                <input matInput formControlName="postalCode" placeholder="Enter postal code">
-                <mat-hint>Format: 5 digits (e.g. 12345)</mat-hint>
-                @if (advancedForm.get('addressInfo.postalCode')?.hasError('required') &&
-                  (advancedForm.get('addressInfo.postalCode')?.touched || advancedFormSubmitted)) {
-                  <mat-error>
-                    Postal code is required
-                  </mat-error>
-                }
-                @if (advancedForm.get('addressInfo.postalCode')?.hasError('pattern') &&
-                  !advancedForm.get('addressInfo.postalCode')?.hasError('required')) {
-                  <mat-error>
-                    Please enter a valid 5-digit postal code
-                  </mat-error>
+                <input
+                  matInput
+                  formControlName="postalCode"
+                  placeholder="00100"
+                />
+                <mat-hint>5 digits (Italian format)</mat-hint>
+                @if (shouldShowError(advancedForm, 'addressInfo.postalCode')) {
+                  <mat-error>{{
+                    getFieldError(advancedForm, 'addressInfo.postalCode')
+                  }}</mat-error>
                 }
               </mat-form-field>
             </div>
@@ -185,46 +213,75 @@
               <mat-label>Country</mat-label>
               <mat-select formControlName="country">
                 @for (country of countries; track country) {
-                  <mat-option [value]="country">
-                    {{ country }}
-                  </mat-option>
+                  <mat-option [value]="country">{{ country }}</mat-option>
                 }
               </mat-select>
-              @if (advancedForm.get('addressInfo.country')?.hasError('required') &&
-                (advancedForm.get('addressInfo.country')?.touched || advancedFormSubmitted)) {
-                <mat-error>
-                  Country is required
-                </mat-error>
+              @if (shouldShowError(advancedForm, 'addressInfo.country')) {
+                <mat-error>{{
+                  getFieldError(advancedForm, 'addressInfo.country')
+                }}</mat-error>
               }
             </mat-form-field>
           </div>
 
-          <!-- Preferences Section -->
+          <!-- Enhanced Preferences Section -->
           <div formGroupName="preferences" class="form-section">
-            <h3>Preferences</h3>
+            <h3>⚙️ Preferences</h3>
 
             <div class="checkbox-field">
               <mat-checkbox formControlName="receiveEmails">
-                Receive email updates
+                📧 Receive email updates
               </mat-checkbox>
             </div>
 
             <div class="radio-field">
-              <label>Theme Preference:</label>
-              <mat-radio-group formControlName="theme">
-                <mat-radio-button value="light">Light</mat-radio-button>
-                <mat-radio-button value="dark">Dark</mat-radio-button>
-                <mat-radio-button value="system">System Default</mat-radio-button>
+              <label class="section-label">🎨 Theme Preference:</label>
+              <mat-radio-group
+                formControlName="theme"
+                class="theme-radio-group"
+              >
+                @for (theme of themes; track theme.value) {
+                  <mat-radio-button [value]="theme.value">
+                    {{ theme.label }}
+                  </mat-radio-button>
+                }
               </mat-radio-group>
+            </div>
+
+            <!-- Nested notification preferences -->
+            <div formGroupName="notifications" class="notifications-section">
+              <label class="section-label">🔔 Notification Settings:</label>
+              <div class="notification-checkboxes">
+                <mat-checkbox formControlName="email"
+                  >Email notifications</mat-checkbox
+                >
+                <mat-checkbox formControlName="sms"
+                  >SMS notifications</mat-checkbox
+                >
+                <mat-checkbox formControlName="push"
+                  >Push notifications</mat-checkbox
+                >
+              </div>
             </div>
           </div>
 
           <!-- Submit Button -->
           <div class="form-actions">
-            <button mat-raised-button color="primary" type="submit">Submit</button>
-            @if (advancedForm.valid && advancedFormSubmitted) {
+            <button
+              mat-raised-button
+              color="primary"
+              type="submit"
+              [disabled]="formSubmissionStates().advanced"
+            >
+              @if (formSubmissionStates().advanced) {
+                Processing...
+              } @else {
+                Submit Advanced Form
+              }
+            </button>
+            @if (advancedFormValid() && formSubmissionStates().advanced) {
               <span class="success-message">
-                Form submitted successfully!
+                ✅ Advanced form submitted successfully!
               </span>
             }
           </div>
@@ -233,115 +290,185 @@
     </mat-card>
   </div>
 
-  <!-- Dynamic Form Example with FormArray -->
+  <!-- Dynamic Form Array with Modern Controls -->
   <div class="form-example">
     <mat-card>
       <mat-card-header>
-        <mat-card-title>Dynamic Form Array</mat-card-title>
-        <mat-card-subtitle>Working with dynamic form fields</mat-card-subtitle>
+        <mat-card-title>Dynamic Skills Form</mat-card-title>
+        <mat-card-subtitle
+          >FormArray with enhanced controls and limits</mat-card-subtitle
+        >
       </mat-card-header>
       <mat-card-content>
         <div class="example-description">
-          This example demonstrates:
+          This example features:
           <ul>
-            <li>Dynamic form fields with FormArray</li>
-            <li>Adding and removing form groups dynamically</li>
-            <li>Validation for each dynamic field</li>
+            <li>Modern FormArray management</li>
+            <li>Smart add/remove controls with limits</li>
+            <li>Enhanced validation for dynamic fields</li>
+            <li>Improved user experience patterns</li>
           </ul>
         </div>
 
-        <form [formGroup]="dynamicForm" (ngSubmit)="submitDynamicForm()" class="form-container">
-          <h3>User Skills</h3>
+        <form
+          [formGroup]="dynamicForm"
+          (ngSubmit)="submitDynamicForm()"
+          class="form-container"
+        >
+          <h3>👤 User Skills Profile</h3>
 
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>User Name</mat-label>
-            <input matInput formControlName="userName" placeholder="Enter your name">
-            @if (dynamicForm.get('userName')?.hasError('required') &&
-              (dynamicForm.get('userName')?.touched || dynamicFormSubmitted)) {
-              <mat-error>
-                User name is required
-              </mat-error>
+            <input
+              matInput
+              formControlName="userName"
+              placeholder="Enter your username"
+            />
+            @if (shouldShowError(dynamicForm, 'userName')) {
+              <mat-error>{{
+                getFieldError(dynamicForm, 'userName')
+              }}</mat-error>
             }
           </mat-form-field>
 
           <div class="skills-section">
-            <h4>Skills</h4>
+            <h4>🚀 Your Skills ({{ skillsArray.length }}/10)</h4>
+
             <div formArrayName="skills">
-              @for (skill of skillsArray.controls; track skill; let i = $index) {
-                <div class="skill-item">
-                  <div [formGroupName]="i">
-                    <div class="skill-header">
-                      <h4>Skill #{{ i + 1 }}</h4>
-                      <button mat-icon-button type="button" color="warn" (click)="removeSkill(i)"
-                        [disabled]="skillsArray.length === 1">
-                        <mat-icon>delete</mat-icon>
-                      </button>
-                    </div>
-                    <div class="skill-fields">
-                      <mat-form-field appearance="outline">
-                        <mat-label>Skill Name</mat-label>
-                        <input matInput formControlName="skillName" placeholder="e.g. Angular">
-                        @if (skill.get('skillName')?.hasError('required') &&
-                          (skill.get('skillName')?.touched || dynamicFormSubmitted)) {
-                          <mat-error>
-                            Skill name is required
-                          </mat-error>
-                        }
-                      </mat-form-field>
-                      <mat-form-field appearance="outline">
-                        <mat-label>Skill Level</mat-label>
-                        <mat-select formControlName="skillLevel">
-                          @for (level of skillLevels; track level) {
-                            <mat-option [value]="level">
-                              {{ level }}
-                            </mat-option>
-                          }
-                        </mat-select>
-                        @if (skill.get('skillLevel')?.hasError('required') &&
-                          (skill.get('skillLevel')?.touched || dynamicFormSubmitted)) {
-                          <mat-error>
-                            Skill level is required
-                          </mat-error>
-                        }
-                      </mat-form-field>
-                      <mat-form-field appearance="outline">
-                        <mat-label>Years Experience</mat-label>
-                        <input matInput formControlName="yearsExperience" type="number" min="0">
-                        @if (skill.get('yearsExperience')?.hasError('required') &&
-                          (skill.get('yearsExperience')?.touched || dynamicFormSubmitted)) {
-                          <mat-error>
-                            Years of experience is required
-                          </mat-error>
-                        }
-                        @if (skill.get('yearsExperience')?.hasError('min') &&
-                          !skill.get('yearsExperience')?.hasError('required')) {
-                          <mat-error>
-                            Cannot be negative
-                          </mat-error>
-                        }
-                      </mat-form-field>
-                    </div>
-                    @if (i < skillsArray.length - 1) {
-                      <mat-divider></mat-divider>
-                    }
+              @for (
+                skill of skillsArray.controls;
+                track skill;
+                let i = $index
+              ) {
+                <div class="skill-item" [formGroupName]="i">
+                  <div class="skill-header">
+                    <h5>Skill #{{ i + 1 }}</h5>
+                    <button
+                      mat-icon-button
+                      type="button"
+                      color="warn"
+                      (click)="removeSkill(i)"
+                      [disabled]="skillsArray.length === 1"
+                      [title]="
+                        skillsArray.length === 1
+                          ? 'At least one skill required'
+                          : 'Remove skill'
+                      "
+                    >
+                      <mat-icon>delete</mat-icon>
+                    </button>
                   </div>
+
+                  <div class="skill-fields">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Skill Name</mat-label>
+                      <input
+                        matInput
+                        formControlName="skillName"
+                        placeholder="e.g. TypeScript"
+                      />
+                      @if (
+                        skill.get('skillName')?.hasError('required') &&
+                        (skill.get('skillName')?.touched ||
+                          formSubmissionStates().dynamic)
+                      ) {
+                        <mat-error>Skill name is required</mat-error>
+                      }
+                      @if (
+                        skill.get('skillName')?.hasError('minlength') &&
+                        !skill.get('skillName')?.hasError('required')
+                      ) {
+                        <mat-error>At least 2 characters required</mat-error>
+                      }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>Skill Level</mat-label>
+                      <mat-select formControlName="skillLevel">
+                        @for (level of skillLevels; track level) {
+                          <mat-option [value]="level">{{ level }}</mat-option>
+                        }
+                      </mat-select>
+                      @if (
+                        skill.get('skillLevel')?.hasError('required') &&
+                        (skill.get('skillLevel')?.touched ||
+                          formSubmissionStates().dynamic)
+                      ) {
+                        <mat-error>Please select a skill level</mat-error>
+                      }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>Years Experience</mat-label>
+                      <input
+                        matInput
+                        formControlName="yearsExperience"
+                        type="number"
+                        min="0"
+                        max="50"
+                        placeholder="0"
+                      />
+                      @if (
+                        skill.get('yearsExperience')?.hasError('required') &&
+                        (skill.get('yearsExperience')?.touched ||
+                          formSubmissionStates().dynamic)
+                      ) {
+                        <mat-error>Experience years required</mat-error>
+                      }
+                      @if (
+                        skill.get('yearsExperience')?.hasError('min') &&
+                        !skill.get('yearsExperience')?.hasError('required')
+                      ) {
+                        <mat-error>Cannot be negative</mat-error>
+                      }
+                      @if (skill.get('yearsExperience')?.hasError('max')) {
+                        <mat-error>Maximum 50 years allowed</mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+
+                  @if (i < skillsArray.length - 1) {
+                    <mat-divider></mat-divider>
+                  }
                 </div>
               }
             </div>
 
             <div class="add-skill-button">
-              <button mat-stroked-button type="button" color="primary" (click)="addSkill()">
-                <mat-icon>add</mat-icon> Add Another Skill
+              <button
+                mat-stroked-button
+                type="button"
+                color="primary"
+                (click)="addSkill()"
+                [disabled]="skillsArray.length >= 10"
+              >
+                <mat-icon>add</mat-icon>
+                @if (skillsArray.length >= 10) {
+                  Maximum skills reached
+                } @else {
+                  Add Another Skill
+                }
               </button>
             </div>
           </div>
 
           <!-- Submit Button -->
           <div class="form-actions">
-            <button mat-raised-button color="primary" type="submit">Submit</button>
-            @if (dynamicForm.valid && dynamicFormSubmitted) {
+            <button
+              mat-raised-button
+              color="primary"
+              type="submit"
+              [disabled]="formSubmissionStates().dynamic"
+            >
+              @if (formSubmissionStates().dynamic) {
+                Saving Skills...
+              } @else {
+                Save Skills Profile
+              }
+            </button>
+            @if (dynamicFormValid() && formSubmissionStates().dynamic) {
               <span class="success-message">
-                Form submitted successfully!
+                ✅ Skills profile saved successfully!
               </span>
             }
           </div>
@@ -350,155 +477,450 @@
     </mat-card>
   </div>
 
-  <!-- Advanced Validation Form Example -->
+  <!-- Advanced Validation Form with Password Strength -->
   <div class="form-example">
     <mat-card>
       <mat-card-header>
-        <mat-card-title>Advanced Validation Form</mat-card-title>
-        <mat-card-subtitle>Complex validations and custom validators</mat-card-subtitle>
+        <mat-card-title>Advanced Validation & Security</mat-card-title>
+        <mat-card-subtitle
+          >Modern validation patterns with visual feedback</mat-card-subtitle
+        >
       </mat-card-header>
       <mat-card-content>
         <div class="example-description">
-          This example demonstrates:
+          This example includes:
           <ul>
-            <li>Custom validators (age range, password requirements)</li>
-            <li>Cross-field validation (password matching)</li>
-            <li>Date picker integration</li>
-            <li>Detailed error messaging</li>
+            <li>Real-time password strength indicator</li>
+            <li>Advanced custom validators</li>
+            <li>Cross-field validation with signals</li>
+            <li>Enhanced user feedback patterns</li>
           </ul>
         </div>
 
-        <form [formGroup]="validationForm" (ngSubmit)="submitValidationForm()" class="form-container">
-          <h3>Registration Form</h3>
+        <form
+          [formGroup]="validationForm"
+          (ngSubmit)="submitValidationForm()"
+          class="form-container"
+        >
+          <h3>🔐 Secure Registration</h3>
 
-          <!-- Username with Pattern Validation -->
+          <!-- Username with Advanced Validation -->
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Username</mat-label>
-            <input matInput formControlName="username" placeholder="Create a username">
+            <input
+              matInput
+              formControlName="username"
+              placeholder="Choose a unique username"
+            />
             <mat-hint>Letters, numbers and underscore only</mat-hint>
-            @if (validationForm.get('username')?.hasError('required') &&
-              (validationForm.get('username')?.touched || validationFormSubmitted)) {
-              <mat-error>
-                Username is required
-              </mat-error>
+            @if (
+              validationForm.get('username')?.hasError('required') &&
+              (validationForm.get('username')?.touched ||
+                formSubmissionStates().validation)
+            ) {
+              <mat-error>Username is required</mat-error>
             }
-            @if (validationForm.get('username')?.hasError('minlength') &&
-              !validationForm.get('username')?.hasError('required')) {
-              <mat-error>
-                Username must be at least 4 characters long
-              </mat-error>
+            @if (
+              validationForm.get('username')?.hasError('minlength') &&
+              !validationForm.get('username')?.hasError('required')
+            ) {
+              <mat-error>Username must be at least 4 characters</mat-error>
             }
-            @if (validationForm.get('username')?.hasError('pattern') &&
+            @if (
+              validationForm.get('username')?.hasError('pattern') &&
               !validationForm.get('username')?.hasError('minlength') &&
-              !validationForm.get('username')?.hasError('required')) {
-              <mat-error>
-                Username can only contain letters, numbers and underscore
-              </mat-error>
+              !validationForm.get('username')?.hasError('required')
+            ) {
+              <mat-error
+                >Only letters, numbers and underscore allowed</mat-error
+              >
             }
           </mat-form-field>
 
-          <!-- Password with Complex Validation -->
+          <!-- Email with Enhanced Validation -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email Address</mat-label>
+            <input
+              matInput
+              formControlName="email"
+              placeholder="your.email@domain.com"
+              type="email"
+            />
+            @if (
+              validationForm.get('email')?.hasError('required') &&
+              (validationForm.get('email')?.touched ||
+                formSubmissionStates().validation)
+            ) {
+              <mat-error>Email is required</mat-error>
+            }
+            @if (
+              validationForm.get('email')?.hasError('email') &&
+              !validationForm.get('email')?.hasError('required')
+            ) {
+              <mat-error>Please enter a valid email address</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Age with Custom Validation -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Age</mat-label>
+            <input
+              matInput
+              formControlName="age"
+              type="number"
+              min="13"
+              max="120"
+              placeholder="Enter your age"
+            />
+            <mat-hint>You must be at least 18 years old</mat-hint>
+            @if (
+              validationForm.get('age')?.hasError('required') &&
+              (validationForm.get('age')?.touched ||
+                formSubmissionStates().validation)
+            ) {
+              <mat-error>Age is required</mat-error>
+            }
+            @if (
+              validationForm.get('age')?.hasError('min') &&
+              !validationForm.get('age')?.hasError('required')
+            ) {
+              <mat-error>You must be at least 18 years old</mat-error>
+            }
+            @if (validationForm.get('age')?.hasError('max')) {
+              <mat-error>Please enter a valid age</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Birth Date Field -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Birth Date</mat-label>
+            <input
+              matInput
+              [matDatepicker]="birthDatePicker"
+              formControlName="birthDate"
+              placeholder="Select your birth date"
+              readonly
+            />
+            <mat-datepicker-toggle
+              matIconSuffix
+              [for]="birthDatePicker"
+            ></mat-datepicker-toggle>
+            <mat-datepicker #birthDatePicker></mat-datepicker>
+            @if (shouldShowError(validationForm, 'birthDate')) {
+              <mat-error>{{
+                getFieldError(validationForm, 'birthDate')
+              }}</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Password with Strength Indicator -->
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Password</mat-label>
-            <input matInput formControlName="password" type="password" placeholder="Create a password">
-            <mat-hint>Must contain uppercase, lowercase, number and special character</mat-hint>
-            @if (validationForm.get('password')?.hasError('required') &&
-              (validationForm.get('password')?.touched || validationFormSubmitted)) {
-              <mat-error>
-                Password is required
-              </mat-error>
+            <input
+              matInput
+              [type]="hidePassword() ? 'password' : 'text'"
+              formControlName="password"
+              placeholder="Create a strong password"
+              autocomplete="new-password"
+            />
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              (click)="togglePasswordVisibility()"
+              [attr.aria-label]="'Hide password'"
+              [attr.aria-pressed]="hidePassword()"
+            >
+              <mat-icon>{{
+                hidePassword() ? 'visibility_off' : 'visibility'
+              }}</mat-icon>
+            </button>
+            @if (
+              validationForm.get('password')?.hasError('required') &&
+              (validationForm.get('password')?.touched ||
+                formSubmissionStates().validation)
+            ) {
+              <mat-error>Password is required</mat-error>
             }
-            @if (validationForm.get('password')?.hasError('minlength') &&
-              !validationForm.get('password')?.hasError('required')) {
-              <mat-error>
-                Password must be at least 8 characters long
-              </mat-error>
+            @if (
+              validationForm.get('password')?.hasError('minlength') &&
+              !validationForm.get('password')?.hasError('required')
+            ) {
+              <mat-error>Password must be at least 8 characters</mat-error>
             }
-            @if (validationForm.get('password')?.hasError('pattern') &&
+            @if (
+              validationForm.get('password')?.hasError('weakPassword') &&
               !validationForm.get('password')?.hasError('minlength') &&
-              !validationForm.get('password')?.hasError('required')) {
-              <mat-error>
-                Password must include uppercase, lowercase, number and special character
-              </mat-error>
+              !validationForm.get('password')?.hasError('required')
+            ) {
+              <mat-error
+                >Password must contain uppercase, lowercase, number and special
+                character</mat-error
+              >
             }
           </mat-form-field>
 
-          <!-- Confirm Password with Cross-Field Validation -->
+          <!-- Password Strength Indicator -->
+          @if (validationForm.get('password')?.value) {
+            <div class="password-strength">
+              <label class="strength-label">Password Strength:</label>
+              <div class="strength-indicator">
+                <div class="strength-bar" [ngClass]="passwordStrength().class">
+                  <div
+                    class="strength-fill"
+                    [style.width.%]="passwordStrength().score * 25"
+                  ></div>
+                </div>
+                <span class="strength-text">{{
+                  passwordStrength().label
+                }}</span>
+              </div>
+            </div>
+          }
+
+          <!-- Confirm Password -->
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Confirm Password</mat-label>
-            <input matInput formControlName="confirmPassword" type="password" placeholder="Confirm your password">
-            @if (validationForm.get('confirmPassword')?.hasError('required') &&
-              (validationForm.get('confirmPassword')?.touched || validationFormSubmitted)) {
-              <mat-error>
-                Please confirm your password
-              </mat-error>
+            <input
+              matInput
+              [type]="hideConfirmPassword() ? 'password' : 'text'"
+              formControlName="confirmPassword"
+              placeholder="Confirm your password"
+            />
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              (click)="toggleConfirmPasswordVisibility()"
+              [attr.aria-label]="'Hide confirm password'"
+              [attr.aria-pressed]="hideConfirmPassword()"
+            >
+              <mat-icon>{{
+                hideConfirmPassword() ? 'visibility_off' : 'visibility'
+              }}</mat-icon>
+            </button>
+            @if (
+              validationForm.get('confirmPassword')?.hasError('required') &&
+              (validationForm.get('confirmPassword')?.touched ||
+                formSubmissionStates().validation)
+            ) {
+              <mat-error>Please confirm your password</mat-error>
             }
-            @if (validationForm.get('confirmPassword')?.hasError('passwordMismatch') &&
-              !validationForm.get('confirmPassword')?.hasError('required')) {
-              <mat-error>
-                Passwords don't match
-              </mat-error>
+            @if (
+              validationForm.hasError('passwordMismatch') &&
+              !validationForm.get('confirmPassword')?.hasError('required') &&
+              validationForm.get('confirmPassword')?.touched
+            ) {
+              <mat-error>Passwords do not match</mat-error>
             }
           </mat-form-field>
 
-          <div class="form-row">
-            <!-- Age with Custom Validator -->
-            <mat-form-field appearance="outline">
-              <mat-label>Age</mat-label>
-              <input matInput formControlName="age" type="number" placeholder="Enter your age">
-              <mat-hint>Must be between 18-120</mat-hint>
-              @if (validationForm.get('age')?.hasError('required') &&
-                (validationForm.get('age')?.touched || validationFormSubmitted)) {
-                <mat-error>
-                  Age is required
-                </mat-error>
-              }
-              @if (validationForm.get('age')?.hasError('ageRange') &&
-                !validationForm.get('age')?.hasError('required')) {
-                <mat-error>
-                  Age must be between 18 and 120
-                </mat-error>
-              }
-            </mat-form-field>
-
-            <!-- Date Picker -->
-            <mat-form-field appearance="outline">
-              <mat-label>Birth Date</mat-label>
-              <input matInput [matDatepicker]="picker" formControlName="birthDate" placeholder="Choose a date">
-              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-              @if (validationForm.get('birthDate')?.hasError('required') &&
-                (validationForm.get('birthDate')?.touched || validationFormSubmitted)) {
-                <mat-error>
-                  Birth date is required
-                </mat-error>
-              }
-            </mat-form-field>
-          </div>
-
-          <!-- Terms Checkbox with Required True Validator -->
-          <div class="checkbox-field">
-            <mat-checkbox formControlName="agreeTerms">
-              I agree to the terms and conditions
+          <!-- Terms and Conditions -->
+          <div class="terms-section">
+            <mat-checkbox formControlName="agreeToTerms">
+              I agree to the
+              <a href="#" target="_blank">Terms and Conditions</a> and
+              <a href="#" target="_blank">Privacy Policy</a>
             </mat-checkbox>
-            @if (validationForm.get('agreeTerms')?.hasError('required') &&
-              (validationForm.get('agreeTerms')?.touched || validationFormSubmitted)) {
-              <mat-error>
-                You must agree to the terms
-              </mat-error>
+            @if (
+              validationForm.get('agreeToTerms')?.hasError('required') &&
+              (validationForm.get('agreeToTerms')?.touched ||
+                formSubmissionStates().validation)
+            ) {
+              <div class="error-message">
+                You must agree to the terms and conditions
+              </div>
             }
           </div>
 
           <!-- Submit Button -->
           <div class="form-actions">
-            <button mat-raised-button color="primary" type="submit">Register</button>
-            @if (validationForm.valid && validationFormSubmitted) {
+            <button
+              mat-raised-button
+              color="primary"
+              type="submit"
+              [disabled]="
+                formSubmissionStates().validation || !validationForm.valid
+              "
+            >
+              @if (formSubmissionStates().validation) {
+                Creating Account...
+              } @else {
+                Create Account
+              }
+            </button>
+            @if (validationFormValid() && formSubmissionStates().validation) {
               <span class="success-message">
-                Registration successful!
+                ✅ Account created successfully!
               </span>
             }
           </div>
         </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Form State Debug Panel -->
+  <div class="form-example">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>🔍 Form State Debug Panel</mat-card-title>
+        <mat-card-subtitle
+          >Real-time form state monitoring for development</mat-card-subtitle
+        >
+      </mat-card-header>
+      <mat-card-content>
+        <div class="debug-panel">
+          <mat-tab-group>
+            <mat-tab label="Basic Form">
+              <div class="debug-content">
+                <h4>Form Status</h4>
+                <div class="status-grid">
+                  <div class="status-item">
+                    <span class="label">Valid:</span>
+                    <span
+                      class="value"
+                      [ngClass]="basicForm.valid ? 'success' : 'error'"
+                    >
+                      {{ basicForm.valid }}
+                    </span>
+                  </div>
+                  <div class="status-item">
+                    <span class="label">Touched:</span>
+                    <span class="value">{{ basicForm.touched }}</span>
+                  </div>
+                  <div class="status-item">
+                    <span class="label">Dirty:</span>
+                    <span class="value">{{ basicForm.dirty }}</span>
+                  </div>
+                </div>
+                <h4>Form Values</h4>
+                <pre class="form-values">{{ basicForm.value | json }}</pre>
+              </div>
+            </mat-tab>
+
+            <mat-tab label="Advanced Form">
+              <div class="debug-content">
+                <h4>Form Status</h4>
+                <div class="status-grid">
+                  <div class="status-item">
+                    <span class="label">Valid:</span>
+                    <span
+                      class="value"
+                      [ngClass]="advancedForm.valid ? 'success' : 'error'"
+                    >
+                      {{ advancedForm.valid }}
+                    </span>
+                  </div>
+                  <div class="status-item">
+                    <span class="label">Touched:</span>
+                    <span class="value">{{ advancedForm.touched }}</span>
+                  </div>
+                  <div class="status-item">
+                    <span class="label">Dirty:</span>
+                    <span class="value">{{ advancedForm.dirty }}</span>
+                  </div>
+                </div>
+                <h4>Form Values</h4>
+                <pre class="form-values">{{ advancedForm.value | json }}</pre>
+              </div>
+            </mat-tab>
+
+            <mat-tab label="Dynamic Form">
+              <div class="debug-content">
+                <h4>Skills Array Length: {{ skillsArray.length }}</h4>
+                <div class="status-grid">
+                  <div class="status-item">
+                    <span class="label">Valid:</span>
+                    <span
+                      class="value"
+                      [ngClass]="dynamicForm.valid ? 'success' : 'error'"
+                    >
+                      {{ dynamicForm.valid }}
+                    </span>
+                  </div>
+                  <div class="status-item">
+                    <span class="label">Touched:</span>
+                    <span class="value">{{ dynamicForm.touched }}</span>
+                  </div>
+                </div>
+                <h4>Form Values</h4>
+                <pre class="form-values">{{ dynamicForm.value | json }}</pre>
+              </div>
+            </mat-tab>
+
+            <mat-tab label="Validation Form">
+              <div class="debug-content">
+                <h4>Password Strength: {{ passwordStrength().label }}</h4>
+                <div class="status-grid">
+                  <div class="status-item">
+                    <span class="label">Valid:</span>
+                    <span
+                      class="value"
+                      [ngClass]="validationForm.valid ? 'success' : 'error'"
+                    >
+                      {{ validationForm.valid }}
+                    </span>
+                  </div>
+                  <div class="status-item">
+                    <span class="label">Password Match:</span>
+                    <span
+                      class="value"
+                      [ngClass]="
+                        !validationForm.hasError('passwordMismatch')
+                          ? 'success'
+                          : 'error'
+                      "
+                    >
+                      {{ !validationForm.hasError('passwordMismatch') }}
+                    </span>
+                  </div>
+                  <div class="status-item">
+                    <span class="label">Terms Agreed:</span>
+                    <span
+                      class="value"
+                      [ngClass]="
+                        validationForm.get('agreeToTerms')?.value
+                          ? 'success'
+                          : 'error'
+                      "
+                    >
+                      {{ validationForm.get('agreeToTerms')?.value }}
+                    </span>
+                  </div>
+                </div>
+                <h4>Form Values</h4>
+                <pre class="form-values">{{ validationForm.value | json }}</pre>
+                <h4>Form Errors</h4>
+                <pre class="form-errors">{{
+                  validationForm.errors | json
+                }}</pre>
+              </div>
+            </mat-tab>
+
+            <!-- <mat-tab label="Validation Form">
+              <div class="debug-content">
+                <h4>Password Strength: {{ passwordStrength().label }}</h4>
+                <div class="status-grid">
+                  <div class="status-item">
+                    <span class="label">Valid:</span>
+                    <span class="value" [ngClass]="validationForm.valid ? 'success' : 'error'">
+                      {{ validationForm.valid }}
+                    </span>
+                  </div>
+                  <div class="status-item">
+                    <span class="label">Password Match:</span>
+                    <span class="value" [ngClass]="!validationForm.hasError('passwordMismatch') ? 'success' : 'error'">
+                      {{ !validationForm.hasError('passwordMismatch') }}
+                    </span>
+                  </div>
+                </div>
+                <h4>Form Errors</h4>
+                <pre class="form-errors">{{ validationForm.errors | json }}</pre>
+              </div>
+            </mat-tab> -->
+          </mat-tab-group>
+        </div>
       </mat-card-content>
     </mat-card>
   </div>

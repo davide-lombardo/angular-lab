@@ -1,33 +1,31 @@
-
-import { Component, OnInit } from '@angular/core';
-import { 
+import { CommonModule } from '@angular/common';
+import { Component, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
   FormArray,
-  FormBuilder, 
-  FormGroup, 
-  FormControl,
-  ReactiveFormsModule, 
-  Validators 
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatSliderModule } from '@angular/material/slider';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDividerModule } from '@angular/material/divider';
-
-// Custom validator function
-function ageRangeValidator(control: FormControl): {[key: string]: boolean} | null {
-  if (control.value !== undefined && (isNaN(control.value) || control.value < 18 || control.value > 120)) {
-    return { 'ageRange': true };
-  }
-  return null;
-}
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSliderModule } from '@angular/material/slider';
+import { MatTabsModule } from '@angular/material/tabs';
+import {
+  passwordStrengthValidator,
+  ageRangeValidator,
+  passwordMatchValidator,
+} from './validators/custom-validators';
 
 @Component({
   selector: 'app-forms-lab',
@@ -45,191 +43,327 @@ function ageRangeValidator(control: FormControl): {[key: string]: boolean} | nul
     MatDatepickerModule,
     MatNativeDateModule,
     MatSliderModule,
-    MatDividerModule
-],
+    MatDividerModule,
+    MatTabsModule,
+    CommonModule,
+  ],
   templateUrl: './forms-lab.component.html',
-  styleUrl: './forms-lab.component.scss'
+  styleUrl: './forms-lab.component.scss',
 })
-export class FormsLabComponent implements OnInit {
-  // Basic form
-  basicForm!: FormGroup;
-  
-  // Advanced form with nested groups
-  advancedForm!: FormGroup;
-  
-  // Dynamic form with FormArray
-  dynamicForm!: FormGroup;
-  
-  // Validation form with custom validators
-  validationForm!: FormGroup;
-  
-  // Form submission states
-  basicFormSubmitted = false;
-  advancedFormSubmitted = false;
-  dynamicFormSubmitted = false;
-  validationFormSubmitted = false;
-  
-  // Select options for demo purposes
-  countries = ['Italy', 'USA', 'France', 'Spain', 'Germany', 'UK'];
-  skillLevels = ['Beginner', 'Intermediate', 'Advanced', 'Expert'];
-  
-  constructor(private fb: FormBuilder) {
-    // Initialize all forms in constructor
-    this.initForms();
-  }
-  
-  ngOnInit(): void {
-    // Subscribe to form changes for demonstration
-    this.basicForm.valueChanges.subscribe(value => {
-      console.log('Basic form values:', value);
-    });
-  }
-  
-  private initForms(): void {
-    // Basic form initialization
-    this.basicForm = this.fb.group({
-      name: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]]
-    });
-    
-    // Advanced form with nested groups
-    this.advancedForm = this.fb.group({
-      personalInfo: this.fb.group({
-        firstName: ['', Validators.required],
-        lastName: ['', Validators.required],
-        email: ['', [Validators.required, Validators.email]]
+export class FormsLabComponent {
+  private readonly fb = inject(FormBuilder);
+  readonly hidePassword = signal(true);
+  readonly hideConfirmPassword = signal(true);
+  readonly passwordValue = signal('');
+
+  // Static data
+  readonly countries = [
+    'Italy',
+    'USA',
+    'France',
+    'Spain',
+    'Germany',
+    'UK',
+  ] as const;
+  readonly skillLevels = [
+    'Beginner',
+    'Intermediate',
+    'Advanced',
+    'Expert',
+  ] as const;
+  readonly themes = [
+    { value: 'light', label: 'Light Theme' },
+    { value: 'dark', label: 'Dark Theme' },
+    { value: 'system', label: 'System Default' },
+  ] as const;
+
+  //  Form submission states
+  readonly formSubmissionStates = signal({
+    basic: false,
+    advanced: false,
+    dynamic: false,
+    validation: false,
+  });
+
+  // Form instances
+  readonly basicForm = this.fb.group({
+    name: ['', [Validators.required, Validators.minLength(2)]],
+    email: ['', [Validators.required, Validators.email]],
+  });
+
+  readonly advancedForm = this.fb.group({
+    personalInfo: this.fb.group({
+      firstName: ['', [Validators.required, Validators.minLength(2)]],
+      lastName: ['', [Validators.required, Validators.minLength(2)]],
+      email: ['', [Validators.required, Validators.email]],
+    }),
+    addressInfo: this.fb.group({
+      street: ['', [Validators.required, Validators.minLength(5)]],
+      city: ['', [Validators.required, Validators.minLength(2)]],
+      country: ['', Validators.required],
+      postalCode: ['', [Validators.required, Validators.pattern(/^\d{5}$/)]],
+    }),
+    preferences: this.fb.group({
+      receiveEmails: [false],
+      theme: ['light', Validators.required],
+      notifications: this.fb.group({
+        email: [true],
+        sms: [false],
+        push: [true],
       }),
-      addressInfo: this.fb.group({
-        street: ['', Validators.required],
-        city: ['', Validators.required],
-        country: ['', Validators.required],
-        postalCode: ['', [Validators.required, Validators.pattern('[0-9]{5}')]]
-      }),
-      preferences: this.fb.group({
-        receiveEmails: [false],
-        theme: ['light']
-      })
-    });
-    
-    // Dynamic form with FormArray
-    this.dynamicForm = this.fb.group({
-      userName: ['', Validators.required],
-      skills: this.fb.array([
-        this.createSkillFormGroup()
-      ])
-    });
-    
-    // Validation form with custom validators
-    this.validationForm = this.fb.group({
-      username: ['', [
-        Validators.required, 
-        Validators.minLength(4), 
-        Validators.pattern('[a-zA-Z0-9_]*')
-      ]],
-      password: ['', [
-        Validators.required, 
-        Validators.minLength(8),
-        Validators.pattern('(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&].{8,}')
-      ]],
+    }),
+  });
+
+  readonly dynamicForm = this.fb.group({
+    userName: ['', [Validators.required, Validators.minLength(3)]],
+    skills: this.fb.array(
+      [this.createSkillFormGroup()],
+      [Validators.minLength(1)]
+    ),
+  });
+
+  readonly validationForm = this.fb.group(
+    {
+      username: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(4),
+          Validators.pattern(/^[a-zA-Z0-9_]+$/),
+        ],
+      ],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, passwordStrengthValidator]],
       confirmPassword: ['', Validators.required],
       age: ['', [Validators.required, ageRangeValidator]],
       birthDate: ['', Validators.required],
-      agreeTerms: [false, Validators.requiredTrue]
-    }, { 
-      validators: this.passwordMatchValidator 
-    });
-  }
-  
-  // Helper method to create a skill form group
-  createSkillFormGroup(): FormGroup {
-    return this.fb.group({
-      skillName: ['', Validators.required],
-      skillLevel: ['', Validators.required],
-      yearsExperience: ['', [Validators.required, Validators.min(0)]]
-    });
-  }
-  
-  // Custom validator for password matching
-  passwordMatchValidator(form: FormGroup) {
-    const password = form.get('password')?.value;
-    const confirmPassword = form.get('confirmPassword')?.value;
-    
-    if (password !== confirmPassword) {
-      form.get('confirmPassword')?.setErrors({ passwordMismatch: true });
-      return { passwordMismatch: true };
+      agreeToTerms: [false, Validators.requiredTrue],
+    },
+    {
+      validators: [passwordMatchValidator],
     }
-    
-    return null;
+  );
+
+  // Computed signals for form validity
+  readonly basicFormValid = computed(() => this.basicForm.valid);
+  readonly advancedFormValid = computed(() => this.advancedForm.valid);
+  readonly dynamicFormValid = computed(() => this.dynamicForm.valid);
+  readonly validationFormValid = computed(() => this.validationForm.valid);
+
+  readonly passwordStrength = computed(() => {
+    const value = this.passwordValue();
+
+    if (!value) {
+      return { score: 0, label: 'No password', class: 'very-weak' };
+    }
+
+    let score = 0;
+    const checks = {
+      hasUpper: /[A-Z]/.test(value),
+      hasLower: /[a-z]/.test(value),
+      hasNumber: /[0-9]/.test(value),
+      hasSpecial: /[$@$!%*?&]/.test(value),
+      hasLength: value.length >= 8,
+    };
+
+    score = Object.values(checks).filter(Boolean).length;
+
+    const strengthLevels = [
+      { label: 'Very Weak', class: 'very-weak' },
+      { label: 'Weak', class: 'weak' },
+      { label: 'Fair', class: 'fair' },
+      { label: 'Good', class: 'good' },
+      { label: 'Strong', class: 'strong' },
+    ];
+
+    const level = strengthLevels[Math.min(score, 4)];
+
+    return {
+      score,
+      label: level.label,
+      class: level.class,
+    };
+  });
+
+  constructor() {
+    this.setupFormSubscriptions();
   }
-  
-  // Form Array methods
+
+  private setupFormSubscriptions(): void {
+    this.validationForm
+      .get('password')
+      ?.valueChanges.pipe(takeUntilDestroyed())
+      .subscribe((value) => {
+        this.passwordValue.set(value || '');
+
+        const confirmPasswordControl =
+          this.validationForm.get('confirmPassword');
+
+        if (confirmPasswordControl?.value) {
+          confirmPasswordControl.updateValueAndValidity();
+        }
+      });
+  }
+
+  // Skill management
+  private createSkillFormGroup(): FormGroup {
+    return this.fb.group({
+      skillName: ['', [Validators.required, Validators.minLength(2)]],
+      skillLevel: ['', Validators.required],
+      yearsExperience: [
+        '',
+        [Validators.required, Validators.min(0), Validators.max(50)],
+      ],
+    });
+  }
+
   get skillsArray(): FormArray {
     return this.dynamicForm.get('skills') as FormArray;
   }
-  
-  addSkill(): void {
-    this.skillsArray.push(this.createSkillFormGroup());
+
+  public addSkill(): void {
+    if (this.skillsArray.length < 10) {
+      // Reasonable limit
+      this.skillsArray.push(this.createSkillFormGroup());
+    }
   }
-  
-  removeSkill(index: number): void {
-    this.skillsArray.removeAt(index);
+
+  public removeSkill(index: number): void {
+    if (this.skillsArray.length > 1) {
+      this.skillsArray.removeAt(index);
+    }
   }
-  
+
+  // Error handling
+  public getFieldError(form: FormGroup, fieldPath: string): string | null {
+    const field = form.get(fieldPath);
+    if (!field || !field.errors) return null;
+
+    const errors = field.errors;
+
+    // Handle specific validation errors with better messages
+    if (errors['required']) return 'This field is required';
+    if (errors['email']) return 'Please enter a valid email address';
+    if (errors['minlength'])
+      return `Minimum ${errors['minlength'].requiredLength} characters required`;
+    if (errors['maxlength'])
+      return `Maximum ${errors['maxlength'].requiredLength} characters allowed`;
+    if (errors['pattern']) {
+      if (fieldPath.includes('postalCode'))
+        return 'Please enter a valid 5-digit postal code';
+      if (fieldPath.includes('username'))
+        return 'Only letters, numbers and underscore allowed';
+      return 'Invalid format';
+    }
+    if (errors['min']) return `Minimum value is ${errors['min'].min}`;
+    if (errors['max']) return `Maximum value is ${errors['max'].max}`;
+    if (errors['weakPassword'])
+      return 'Password must contain uppercase, lowercase, number and special character';
+    if (errors['passwordMismatch']) return 'Passwords do not match';
+    if (errors['ageRange']) return 'Age must be between 18 and 120';
+
+    return 'Invalid input';
+  }
+
+  public shouldShowError(form: FormGroup, fieldPath: string): boolean {
+    const field = form.get(fieldPath);
+    const isSubmitted = this.formSubmissionStates();
+
+    return !!(
+      field &&
+      field.errors &&
+      (field.touched ||
+        isSubmitted.basic ||
+        isSubmitted.advanced ||
+        isSubmitted.dynamic ||
+        isSubmitted.validation)
+    );
+  }
+
   // Form submission methods
-  submitBasicForm(): void {
-    this.basicFormSubmitted = true;
-    
+  public submitBasicForm(): void {
+    this.formSubmissionStates.update((state) => ({ ...state, basic: true }));
+
     if (this.basicForm.valid) {
       console.log('Basic form submitted:', this.basicForm.value);
-      // Here you would typically send the data to a service
-      
-      // Reset the form after successful submission
+
+      // Simulate API call
       setTimeout(() => {
         this.basicForm.reset();
-        this.basicFormSubmitted = false;
-      }, 3000);
+        this.formSubmissionStates.update((state) => ({
+          ...state,
+          basic: false,
+        }));
+      }, 2000);
+    } else {
+      this.basicForm.markAllAsTouched();
     }
   }
-  
-  submitAdvancedForm(): void {
-    this.advancedFormSubmitted = true;
-    
+
+  public submitAdvancedForm(): void {
+    this.formSubmissionStates.update((state) => ({ ...state, advanced: true }));
+
     if (this.advancedForm.valid) {
       console.log('Advanced form submitted:', this.advancedForm.value);
-      // Reset after submission
+
       setTimeout(() => {
         this.advancedForm.reset();
-        this.advancedFormSubmitted = false;
-      }, 3000);
+        this.formSubmissionStates.update((state) => ({
+          ...state,
+          advanced: false,
+        }));
+      }, 2000);
+    } else {
+      this.advancedForm.markAllAsTouched();
     }
   }
-  
-  submitDynamicForm(): void {
-    this.dynamicFormSubmitted = true;
-    
+
+  public submitDynamicForm(): void {
+    this.formSubmissionStates.update((state) => ({ ...state, dynamic: true }));
+
     if (this.dynamicForm.valid) {
       console.log('Dynamic form submitted:', this.dynamicForm.value);
-      // Reset after submission
+
       setTimeout(() => {
         this.dynamicForm.reset();
-        this.dynamicFormSubmitted = false;
-        // Reset to just one skill entry
         this.skillsArray.clear();
-        this.addSkill();
-      }, 3000);
+        this.skillsArray.push(this.createSkillFormGroup());
+        this.formSubmissionStates.update((state) => ({
+          ...state,
+          dynamic: false,
+        }));
+      }, 2000);
+    } else {
+      this.dynamicForm.markAllAsTouched();
     }
   }
-  
-  submitValidationForm(): void {
-    this.validationFormSubmitted = true;
-    
+
+  public submitValidationForm(): void {
+    this.formSubmissionStates.update((state) => ({
+      ...state,
+      validation: true,
+    }));
+
     if (this.validationForm.valid) {
       console.log('Validation form submitted:', this.validationForm.value);
-      // Reset after submission
+
       setTimeout(() => {
         this.validationForm.reset();
-        this.validationFormSubmitted = false;
-      }, 3000);
+        this.formSubmissionStates.update((state) => ({
+          ...state,
+          validation: false,
+        }));
+      }, 2000);
+    } else {
+      this.validationForm.markAllAsTouched();
     }
+  }
+
+  public togglePasswordVisibility(): void {
+    this.hidePassword.update((hidden) => !hidden);
+  }
+
+  public toggleConfirmPasswordVisibility(): void {
+    this.hideConfirmPassword.update((hidden) => !hidden);
   }
 }
